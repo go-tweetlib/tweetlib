@@ -1,7 +1,7 @@
 tweetlib
 ==========
 
-A fully OAuth-authenticated library to interact with the new Twitter's 
+A fully OAuth-authenticated library to interact with the new Twitter's
 [REST API](https://dev.twitter.com/docs/api/)
 
 Installing
@@ -78,13 +78,15 @@ is often confusing to many people, so I thought I'd go through the
 whole process here. You'll see that with tweetlib this will be quite
 simple to do:
 
-1. The first thing you need to do is to create a new Twitter application
-   by going to: http://dev.twitter.com/apps/new
-2. You will need to take note of the *Consumer Key* and *Consumer Secret* of
-   your new Twitter application. 
-3. In order to take actions on behalf of a users, we need to start our OAuth
-   dance with Twitter. The first thing to do is to create a new tweetlib
-   Transport with an empty Token:
+1. The first thing you need to do is to create a new Twitter
+   application by going to: http://dev.twitter.com/apps/new
+
+2. You will need to take note of the *Consumer Key* and *Consumer
+   Secret* of your new Twitter application.
+
+3. In order to take actions on behalf of a users, we need to start our
+   OAuth dance with Twitter. The first thing to do is to create a new
+   tweetlib Transport with an empty Token:
 
         config := &Config{
                 ConsumerKey: "your-consumer-key",
@@ -93,39 +95,42 @@ simple to do:
         tr := &tweetlib.Transport{Config: config,
                               Token: &Token{}}
 
-4. (Optional) tweetlib.Transport uses the http package to talk to Twitter.
-   If you need to (e.g., you're using Google App Engine), you can set a custom
-   underlying transport to be used. E.g:
+4. (Optional) tweetlib.Transport uses the http package to talk to
+   Twitter.  If you need to (e.g., you're using Google App Engine),
+   you can set a custom underlying transport to be used. E.g:
 
         tr.Transport = &urlfetch.Transport{Context: c}
 
-5. Now it's time to request a temporary token. This is the actual beginning
-   of the OAuth dance with Twitter
+5. Now it's time to request a temporary token. This is the actual
+   beginning of the OAuth dance with Twitter
 
         tt, err := tr.TempToken()
 
-6. With `tweetlib.TempToken` ready, you will not need your user to authorize
-   your application to use Twitter on their behalf. This is done by redirecting
-   your user to an authorization URL.
+6. With `tweetlib.TempToken` ready, you will not need your user to
+   authorize your application to use Twitter on their behalf. This is
+   done by redirecting your user to an authorization URL.
 
         authorizationURL := tt.AUthURL()
         // redirect the user to it...
 
-7. After the user authorizes your application to take action on their behalf,
-   Twitter will send a verification code to your callback. More on that step 7 below.
+7. After the user authorizes your application to take action on their
+   behalf, Twitter will send a verification code to your
+   callback. More on that step 7 below.
 
 
-8. You now need to wait for Twitter to get back to you. They will do so by
-   doing a GET on the callback specified in your `tweetlib.Config` (step 3 above.)
-   Twitter will send two parameters to your callback: `oauth_token` (same as
-   your `TempToken.Token`) and an `oauth_verifier`. You're almost ready. Now you
-   only need to exchange your `tweetlib.TempToken` for a permanent one.
+8. You now need to wait for Twitter to get back to you. They will do
+   so by doing a GET on the callback specified in your
+   `tweetlib.Config` (step 3 above.)  Twitter will send two parameters
+   to your callback: `oauth_token` (same as your `TempToken.Token`)
+   and an `oauth_verifier`. You're almost ready. Now you only need to
+   exchange your `tweetlib.TempToken` for a permanent one.
 
         tok, err := tr.AccessToken(tt, oauth_verifier)
 
-9. Note that you do not need to update your `tweetlib.Transport.Token` with the
-   new token, since this is done automatically. You should save the token for
-   future use, though, so you don't have to go through all this dance again.
+9. Note that you do not need to update your `tweetlib.Transport.Token`
+   with the new token, since this is done automatically. You should
+   save the token for future use, though, so you don't have to go
+   through all this dance again.
 
 License
 -------
