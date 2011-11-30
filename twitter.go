@@ -66,6 +66,9 @@ func New(client *http.Client) (*Service, os.Error) {
 	s.Timelines = &TimelinesService{s: s}
 	s.Tweets = &TweetsService{s: s}
 	s.Help = &HelpService{s: s}
+	s.DM = &DMService{s: s}
+	s.Users = &UsersService{s: s}
+
 	return s, nil
 }
 
@@ -75,6 +78,9 @@ type Service struct {
 	Timelines *TimelinesService
 	Tweets    *TweetsService
 	Help      *HelpService
+	Search    *SearchService
+	DM        *DMService
+	Users     *UsersService
 }
 
 type TimelinesService struct {
@@ -86,6 +92,18 @@ type TweetsService struct {
 }
 
 type HelpService struct {
+	s *Service
+}
+
+type SearchService struct {
+	s *Service
+}
+
+type DMService struct {
+	s *Service
+}
+
+type UsersService struct {
 	s *Service
 }
 
@@ -1220,6 +1238,788 @@ func (c *HelpConfigurationCall) Do() (*Configuration, os.Error) {
 		return nil, err
 	}
 	ret := new(Configuration)
+	if err := json.NewDecoder(res.Body).Decode(ret); err != nil {
+		return ret, err
+	}
+	return ret, nil
+}
+
+// Search calls --------------------------------------------------------------
+
+type SearchSearchCall struct {
+	s    *Service
+	q    string
+	opt_ map[string]interface{}
+}
+
+func (r *SearchService) Search(q string) *SearchSearchCall {
+	c := &SearchSearchCall{s: r.s, opt_: make(map[string]interface{})}
+	c.q = q
+	return c
+}
+
+func (c *SearchSearchCall) Callback(callback string) *SearchSearchCall {
+	c.opt_["callback"] = callback
+	return c
+}
+
+func (c *SearchSearchCall) Geocode(geocode string) *SearchSearchCall {
+	c.opt_["geocode"] = geocode
+	return c
+}
+
+func (c *SearchSearchCall) Lang(lang string) *SearchSearchCall {
+	c.opt_["lang"] = lang
+	return c
+}
+
+func (c *SearchSearchCall) Locale(locale string) *SearchSearchCall {
+	c.opt_["locale"] = locale
+	return c
+}
+
+func (c *SearchSearchCall) Page(page int) *SearchSearchCall {
+	c.opt_["page"] = page
+	return c
+}
+
+func (c *SearchSearchCall) ResultType(result_type string) *SearchSearchCall {
+	c.opt_["result_type"] = result_type
+	return c
+}
+
+func (c *SearchSearchCall) Rpp(rpp int) *SearchSearchCall {
+	c.opt_["rpp"] = rpp
+	return c
+}
+
+func (c *SearchSearchCall) ShowUser(show_user bool) *SearchSearchCall {
+	c.opt_["show_user"] = show_user
+	return c
+}
+
+func (c *SearchSearchCall) Until(until string) *SearchSearchCall {
+	c.opt_["until"] = until
+	return c
+}
+
+func (c *SearchSearchCall) SinceId(since_id string) *SearchSearchCall {
+	c.opt_["since_id"] = since_id
+	return c
+}
+
+func (c *SearchSearchCall) IncludeEntities(include_entities bool) *SearchSearchCall {
+	c.opt_["include_entities"] = include_entities
+	return c
+}
+
+func (c *SearchSearchCall) Do() (*TweetList, os.Error) {
+	var body io.Reader = nil
+	params := make(url.Values)
+	params.Set("q", c.q)
+	if v, ok := c.opt_["callback"]; ok {
+		params.Set("callback", fmt.Sprintf("%v", v))
+	}
+
+	if v, ok := c.opt_["geocode"]; ok {
+		params.Set("geocode", fmt.Sprintf("%v", v))
+	}
+
+	if v, ok := c.opt_["lang"]; ok {
+		params.Set("lang", fmt.Sprintf("%v", v))
+	}
+
+	if v, ok := c.opt_["locale"]; ok {
+		params.Set("locale", fmt.Sprintf("%v", v))
+	}
+
+	if v, ok := c.opt_["page"]; ok {
+		params.Set("page", fmt.Sprintf("%v", v))
+	}
+
+	if v, ok := c.opt_["result_type"]; ok {
+		params.Set("result_type", fmt.Sprintf("%v", v))
+	}
+
+	if v, ok := c.opt_["rpp"]; ok {
+		params.Set("rpp", fmt.Sprintf("%v", v))
+	}
+
+	if v, ok := c.opt_["show_user"]; ok {
+		params.Set("show_user", fmt.Sprintf("%v", v))
+	}
+
+	if v, ok := c.opt_["until"]; ok {
+		params.Set("until", fmt.Sprintf("%v", v))
+	}
+
+	if v, ok := c.opt_["since_id"]; ok {
+		params.Set("since_id", fmt.Sprintf("%v", v))
+	}
+
+	if v, ok := c.opt_["include_entities"]; ok {
+		params.Set("include_entities", fmt.Sprintf("%v", v))
+	}
+	urls := "http://search.twitter.com/search.json"
+	urls += "?" + params.Encode()
+	fmt.Printf("URL: %s\n", urls)
+	req, _ := http.NewRequest("GET", urls, body)
+	res, err := c.s.client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	if err := checkResponse(res); err != nil {
+		return nil, err
+	}
+	ret := new(TweetList)
+	if err := json.NewDecoder(res.Body).Decode(ret); err != nil {
+		return ret, err
+	}
+	return ret, nil
+}
+
+// Direct Messages -----------------------------------------------------------
+
+
+type DMMessagesCall struct {
+	s    *Service
+	opt_ map[string]interface{}
+}
+
+func (r *DMService) Messages() *DMMessagesCall {
+	c := &DMMessagesCall{s: r.s, opt_: make(map[string]interface{})}
+	return c
+}
+
+func (c *DMMessagesCall) SinceId(since_id string) *DMMessagesCall {
+	c.opt_["since_id"] = since_id
+	return c
+}
+
+func (c *DMMessagesCall) MaxId(max_id string) *DMMessagesCall {
+	c.opt_["max_id"] = max_id
+	return c
+}
+
+func (c *DMMessagesCall) Count(count int) *DMMessagesCall {
+	c.opt_["count"] = count
+	return c
+}
+
+func (c *DMMessagesCall) Page(page int) *DMMessagesCall {
+	c.opt_["page"] = page
+	return c
+}
+
+func (c *DMMessagesCall) IncludeEntities(include_entities bool) *DMMessagesCall {
+	c.opt_["include_entities"] = include_entities
+	return c
+}
+
+func (c *DMMessagesCall) SkipStatus(skip_status bool) *DMMessagesCall {
+	c.opt_["skip_status"] = skip_status
+	return c
+}
+
+func (c *DMMessagesCall) Do() (*MessageList, os.Error) {
+	var body io.Reader = nil
+	params := make(url.Values)
+
+	if v, ok := c.opt_["since_id"]; ok {
+		params.Set("since_id", fmt.Sprintf("%v", v))
+	}
+
+	if v, ok := c.opt_["max_id"]; ok {
+		params.Set("max_id", fmt.Sprintf("%v", v))
+	}
+
+	if v, ok := c.opt_["count"]; ok {
+		params.Set("count", fmt.Sprintf("%v", v))
+	}
+
+	if v, ok := c.opt_["page"]; ok {
+		params.Set("page", fmt.Sprintf("%v", v))
+	}
+
+	if v, ok := c.opt_["include_entities"]; ok {
+		params.Set("include_entities", fmt.Sprintf("%v", v))
+	}
+
+	if v, ok := c.opt_["skip_status"]; ok {
+		params.Set("skip_status", fmt.Sprintf("%v", v))
+	}
+
+	urls := fmt.Sprintf("%s/%s.json", apiURL, "direct_messages")
+	urls += "?" + params.Encode()
+	req, _ := http.NewRequest("GET", urls, body)
+	res, err := c.s.client.Do(req)
+
+	if err != nil {
+		return nil, err
+	}
+	if err := checkResponse(res); err != nil {
+		return nil, err
+	}
+	ret := new(MessageList)
+	if err := json.NewDecoder(res.Body).Decode(ret); err != nil {
+		return ret, err
+	}
+	return ret, nil
+}
+
+type DMMessagesSentCall struct {
+	s    *Service
+	opt_ map[string]interface{}
+}
+
+func (r *DMService) MessagesSent() *DMMessagesSentCall {
+	c := &DMMessagesSentCall{s: r.s, opt_: make(map[string]interface{})}
+	return c
+}
+
+func (c *DMMessagesSentCall) SinceId(since_id string) *DMMessagesSentCall {
+	c.opt_["since_id"] = since_id
+	return c
+}
+
+func (c *DMMessagesSentCall) MaxId(max_id string) *DMMessagesSentCall {
+	c.opt_["max_id"] = max_id
+	return c
+}
+
+func (c *DMMessagesSentCall) Count(count int) *DMMessagesSentCall {
+	c.opt_["count"] = count
+	return c
+}
+
+func (c *DMMessagesSentCall) Page(page int) *DMMessagesSentCall {
+	c.opt_["page"] = page
+	return c
+}
+
+func (c *DMMessagesSentCall) IncludeEntities(include_entities bool) *DMMessagesSentCall {
+	c.opt_["include_entities"] = include_entities
+	return c
+}
+
+func (c *DMMessagesSentCall) Do() (*MessageList, os.Error) {
+	var body io.Reader = nil
+	params := make(url.Values)
+
+	if v, ok := c.opt_["since_id"]; ok {
+		params.Set("since_id", fmt.Sprintf("%v", v))
+	}
+
+	if v, ok := c.opt_["max_id"]; ok {
+		params.Set("max_id", fmt.Sprintf("%v", v))
+	}
+
+	if v, ok := c.opt_["count"]; ok {
+		params.Set("count", fmt.Sprintf("%v", v))
+	}
+
+	if v, ok := c.opt_["page"]; ok {
+		params.Set("page", fmt.Sprintf("%v", v))
+	}
+
+	if v, ok := c.opt_["include_entities"]; ok {
+		params.Set("include_entities", fmt.Sprintf("%v", v))
+	}
+
+	urls := fmt.Sprintf("%s/%s.json", apiURL, "direct_messages/sent")
+	urls += "?" + params.Encode()
+	req, _ := http.NewRequest("GET", urls, body)
+	res, err := c.s.client.Do(req)
+
+	if err != nil {
+		return nil, err
+	}
+	if err := checkResponse(res); err != nil {
+		return nil, err
+	}
+	ret := new(MessageList)
+	if err := json.NewDecoder(res.Body).Decode(ret); err != nil {
+		return ret, err
+	}
+	return ret, nil
+}
+
+type DMDestroyCall struct {
+	s    *Service
+	id   string
+	opt_ map[string]interface{}
+}
+
+func (r *DMService) Destroy(id string) *DMDestroyCall {
+	c := &DMDestroyCall{s: r.s, opt_: make(map[string]interface{})}
+	c.id = id
+	return c
+}
+
+func (c *DMDestroyCall) Id(id string) *DMDestroyCall {
+	c.opt_["id"] = id
+	return c
+}
+
+func (c *DMDestroyCall) IncludeEntities(include_entities bool) *DMDestroyCall {
+	c.opt_["include_entities"] = include_entities
+	return c
+}
+
+func (c *DMDestroyCall) Do() (*Message, os.Error) {
+	var body io.Reader = nil
+	params := make(url.Values)
+	params.Set("id", c.id)
+
+	if v, ok := c.opt_["id"]; ok {
+		params.Set("id", fmt.Sprintf("%v", v))
+	}
+
+	if v, ok := c.opt_["include_entities"]; ok {
+		params.Set("include_entities", fmt.Sprintf("%v", v))
+	}
+
+	urls := fmt.Sprintf("%s/%s.json", apiURL, fmt.Sprintf("direct_messages/destroy/%s", c.id))
+	urls += "?" + params.Encode()
+	body = bytes.NewBuffer([]byte(params.Encode()))
+	ctype := "application/x-www-form-urlencoded"
+	req, _ := http.NewRequest("POST", urls, body)
+	req.Header.Set("Content-Type", ctype)
+	res, err := c.s.client.Do(req)
+
+	if err != nil {
+		return nil, err
+	}
+	if err := checkResponse(res); err != nil {
+		return nil, err
+	}
+	ret := new(Message)
+	if err := json.NewDecoder(res.Body).Decode(ret); err != nil {
+		return ret, err
+	}
+	return ret, nil
+}
+
+type DMNewCall struct {
+	s    *Service
+	text string
+	opt_ map[string]interface{}
+}
+
+func (r *DMService) New(text string) *DMNewCall {
+	c := &DMNewCall{s: r.s, opt_: make(map[string]interface{})}
+	c.text = text
+	return c
+}
+
+func (c *DMNewCall) UserId(user_id string) *DMNewCall {
+	c.opt_["user_id"] = user_id
+	return c
+}
+
+func (c *DMNewCall) ScreenName(screen_name string) *DMNewCall {
+	c.opt_["screen_name"] = screen_name
+	return c
+}
+
+func (c *DMNewCall) WrapLinks(wrap_links bool) *DMNewCall {
+	c.opt_["wrap_links"] = wrap_links
+	return c
+}
+
+func (c *DMNewCall) Do() (*Tweet, os.Error) {
+	var body io.Reader = nil
+	params := make(url.Values)
+
+	if v, ok := c.opt_["user_id"]; ok {
+		params.Set("user_id", fmt.Sprintf("%v", v))
+	}
+
+	if v, ok := c.opt_["screen_name"]; ok {
+		params.Set("screen_name", fmt.Sprintf("%v", v))
+	}
+
+	params.Set("text", fmt.Sprintf("%v", c.text))
+
+	if v, ok := c.opt_["wrap_links"]; ok {
+		params.Set("wrap_links", fmt.Sprintf("%v", v))
+	}
+
+	urls := fmt.Sprintf("%s/%s.json", apiURL, "direct_messages/new")
+	urls += "?" + params.Encode()
+	body = bytes.NewBuffer([]byte(params.Encode()))
+	ctype := "application/x-www-form-urlencoded"
+	req, _ := http.NewRequest("POST", urls, body)
+	req.Header.Set("Content-Type", ctype)
+	res, err := c.s.client.Do(req)
+
+	if err != nil {
+		return nil, err
+	}
+	if err := checkResponse(res); err != nil {
+		return nil, err
+	}
+	ret := new(Tweet)
+	if err := json.NewDecoder(res.Body).Decode(ret); err != nil {
+		return ret, err
+	}
+	return ret, nil
+}
+
+type DMShowCall struct {
+	s    *Service
+	id   string
+	opt_ map[string]interface{}
+}
+
+func (r *DMService) Show(id string) *DMShowCall {
+	c := &DMShowCall{s: r.s, opt_: make(map[string]interface{})}
+	c.id = id
+	return c
+}
+
+func (c *DMShowCall) Do() (*Message, os.Error) {
+	var body io.Reader = nil
+	params := make(url.Values)
+	params.Set("id", fmt.Sprintf("%v", c.id))
+
+	urls := fmt.Sprintf("%s/%s.json", apiURL, fmt.Sprintf("direct_messages/new/%v", c.id))
+	urls += "?" + params.Encode()
+	req, _ := http.NewRequest("GET", urls, body)
+	res, err := c.s.client.Do(req)
+
+	if err != nil {
+		return nil, err
+	}
+	if err := checkResponse(res); err != nil {
+		return nil, err
+	}
+	ret := new(Message)
+	if err := json.NewDecoder(res.Body).Decode(ret); err != nil {
+		return ret, err
+	}
+	return ret, nil
+}
+
+// Users calls ---------------------------------------------------------------
+
+
+type UsersLookUpCall struct {
+	s    *Service
+	opt_ map[string]interface{}
+}
+
+func (r *UsersService) LookUp() *UsersLookUpCall {
+	c := &UsersLookUpCall{s: r.s, opt_: make(map[string]interface{})}
+	return c
+}
+
+func (c *UsersLookUpCall) UserId(user_id string) *UsersLookUpCall {
+	c.opt_["user_id"] = user_id
+	return c
+}
+
+func (c *UsersLookUpCall) ScreenName(screen_name string) *UsersLookUpCall {
+	c.opt_["screen_name"] = screen_name
+	return c
+}
+
+func (c *UsersLookUpCall) IncludeEntities(include_entities bool) *UsersLookUpCall {
+	c.opt_["include_entities"] = include_entities
+	return c
+}
+
+func (c *UsersLookUpCall) Do() (*UserList, os.Error) {
+	var body io.Reader = nil
+	params := make(url.Values)
+
+	if v, ok := c.opt_["user_id"]; ok {
+		params.Set("user_id", fmt.Sprintf("%v", v))
+	}
+
+	if v, ok := c.opt_["screen_name"]; ok {
+		params.Set("screen_name", fmt.Sprintf("%v", v))
+	}
+
+	if v, ok := c.opt_["include_entities"]; ok {
+		params.Set("include_entities", fmt.Sprintf("%v", v))
+	}
+
+	urls := fmt.Sprintf("%s/%s.json", apiURL, "users/lookup")
+	urls += "?" + params.Encode()
+	req, _ := http.NewRequest("GET", urls, body)
+	res, err := c.s.client.Do(req)
+
+	if err != nil {
+		return nil, err
+	}
+	if err := checkResponse(res); err != nil {
+		return nil, err
+	}
+	ret := new(UserList)
+	if err := json.NewDecoder(res.Body).Decode(ret); err != nil {
+		return ret, err
+	}
+	return ret, nil
+}
+
+type UsersSearchCall struct {
+	s    *Service
+	q    string
+	opt_ map[string]interface{}
+}
+
+func (r *UsersService) Search(q string) *UsersSearchCall {
+	c := &UsersSearchCall{s: r.s, opt_: make(map[string]interface{})}
+	c.q = q
+	return c
+}
+
+func (c *UsersSearchCall) Page(page int) *UsersSearchCall {
+	c.opt_["page"] = page
+	return c
+}
+
+func (c *UsersSearchCall) PerPage(per_page int) *UsersSearchCall {
+	c.opt_["per_page"] = per_page
+	return c
+}
+
+func (c *UsersSearchCall) IncludeEntities(include_entities bool) *UsersSearchCall {
+	c.opt_["include_entities"] = include_entities
+	return c
+}
+
+func (c *UsersSearchCall) Do() (*UserList, os.Error) {
+	var body io.Reader = nil
+	params := make(url.Values)
+	params.Set("q", fmt.Sprintf("%v", c.q))
+
+	if v, ok := c.opt_["page"]; ok {
+		params.Set("page", fmt.Sprintf("%v", v))
+	}
+
+	if v, ok := c.opt_["per_page"]; ok {
+		params.Set("per_page", fmt.Sprintf("%v", v))
+	}
+
+	if v, ok := c.opt_["include_entities"]; ok {
+		params.Set("include_entities", fmt.Sprintf("%v", v))
+	}
+
+	urls := fmt.Sprintf("%s/%s.json", apiURL, "users/search")
+	urls += "?" + params.Encode()
+	req, _ := http.NewRequest("GET", urls, body)
+	res, err := c.s.client.Do(req)
+
+	if err != nil {
+		return nil, err
+	}
+	if err := checkResponse(res); err != nil {
+		return nil, err
+	}
+	ret := new(UserList)
+	if err := json.NewDecoder(res.Body).Decode(ret); err != nil {
+		return ret, err
+	}
+	return ret, nil
+}
+
+type UsersShowCall struct {
+	s    *Service
+	opt_ map[string]interface{}
+}
+
+func (r *UsersService) Show() *UsersShowCall {
+	c := &UsersShowCall{s: r.s, opt_: make(map[string]interface{})}
+	return c
+}
+
+func (c *UsersShowCall) UserId(user_id string) *UsersShowCall {
+	c.opt_["user_id"] = user_id
+	return c
+}
+
+func (c *UsersShowCall) ScreenName(screen_name string) *UsersShowCall {
+	c.opt_["screen_name"] = screen_name
+	return c
+}
+
+func (c *UsersShowCall) IncludeEntities(include_entities bool) *UsersShowCall {
+	c.opt_["include_entities"] = include_entities
+	return c
+}
+
+func (c *UsersShowCall) Do() (*User, os.Error) {
+	var body io.Reader = nil
+	params := make(url.Values)
+
+	if v, ok := c.opt_["user_id"]; ok {
+		params.Set("user_id", fmt.Sprintf("%v", v))
+	}
+
+	if v, ok := c.opt_["screen_name"]; ok {
+		params.Set("screen_name", fmt.Sprintf("%v", v))
+	}
+
+	if v, ok := c.opt_["include_entities"]; ok {
+		params.Set("include_entities", fmt.Sprintf("%v", v))
+	}
+
+	urls := fmt.Sprintf("%s/%s.json", apiURL, "users/show")
+	urls += "?" + params.Encode()
+	req, _ := http.NewRequest("GET", urls, body)
+	res, err := c.s.client.Do(req)
+
+	if err != nil {
+		return nil, err
+	}
+	if err := checkResponse(res); err != nil {
+		return nil, err
+	}
+	ret := new(User)
+	if err := json.NewDecoder(res.Body).Decode(ret); err != nil {
+		return ret, err
+	}
+	return ret, nil
+}
+
+
+type UsersContributeesCall struct {
+	s    *Service
+	opt_ map[string]interface{}
+}
+
+func (r *UsersService) Contributees() *UsersContributeesCall {
+	c := &UsersContributeesCall{s: r.s, opt_: make(map[string]interface{})}
+	return c
+}
+
+func (c *UsersContributeesCall) UserId(user_id string) *UsersContributeesCall {
+	c.opt_["user_id"] = user_id
+	return c
+}
+
+func (c *UsersContributeesCall) ScreenName(screen_name string) *UsersContributeesCall {
+	c.opt_["screen_name"] = screen_name
+	return c
+}
+
+func (c *UsersContributeesCall) IncludeEntities(include_entities bool) *UsersContributeesCall {
+	c.opt_["include_entities"] = include_entities
+	return c
+}
+
+func (c *UsersContributeesCall) SkipStatus(skip_status bool) *UsersContributeesCall {
+	c.opt_["skip_status"] = skip_status
+	return c
+}
+
+
+func (c *UsersContributeesCall) Do() (*UserList, os.Error) {
+	var body io.Reader = nil
+	params := make(url.Values)
+
+	if v, ok := c.opt_["user_id"]; ok {
+		params.Set("user_id", fmt.Sprintf("%v", v))
+	}
+
+	if v, ok := c.opt_["screen_name"]; ok {
+		params.Set("screen_name", fmt.Sprintf("%v", v))
+	}
+
+	if v, ok := c.opt_["include_entities"]; ok {
+		params.Set("include_entities", fmt.Sprintf("%v", v))
+	}
+
+	if v, ok := c.opt_["skip_status"]; ok {
+		params.Set("skip_status", fmt.Sprintf("%v", v))
+	}
+
+	urls := fmt.Sprintf("%s/%s.json", apiURL, "users/contributees")
+
+	urls += "?" + params.Encode()
+	req, _ := http.NewRequest("GET", urls, body)
+	res, err := c.s.client.Do(req)
+
+
+	if err != nil {
+		return nil, err
+	}
+	if err := checkResponse(res); err != nil {
+		return nil, err
+	}
+	ret := new(UserList)
+	if err := json.NewDecoder(res.Body).Decode(ret); err != nil {
+		return ret, err
+	}
+	return ret, nil
+}
+
+type UsersContributorsCall struct {
+	s    *Service
+	opt_ map[string]interface{}
+}
+
+func (r *UsersService) Contributors() *UsersContributorsCall {
+	c := &UsersContributorsCall{s: r.s, opt_: make(map[string]interface{})}
+	return c
+}
+
+func (c *UsersContributorsCall) UserId(user_id string) *UsersContributorsCall {
+	c.opt_["user_id"] = user_id
+	return c
+}
+
+func (c *UsersContributorsCall) ScreenName(screen_name string) *UsersContributorsCall {
+	c.opt_["screen_name"] = screen_name
+	return c
+}
+
+func (c *UsersContributorsCall) IncludeEntities(include_entities bool) *UsersContributorsCall {
+	c.opt_["include_entities"] = include_entities
+	return c
+}
+
+func (c *UsersContributorsCall) SkipStatus(skip_status bool) *UsersContributorsCall {
+	c.opt_["skip_status"] = skip_status
+	return c
+}
+
+
+func (c *UsersContributorsCall) Do() (*Tweet, os.Error) {
+	var body io.Reader = nil
+	params := make(url.Values)
+
+	if v, ok := c.opt_["user_id"]; ok {
+		params.Set("user_id", fmt.Sprintf("%v", v))
+	}
+
+	if v, ok := c.opt_["screen_name"]; ok {
+		params.Set("screen_name", fmt.Sprintf("%v", v))
+	}
+
+	if v, ok := c.opt_["include_entities"]; ok {
+		params.Set("include_entities", fmt.Sprintf("%v", v))
+	}
+
+	if v, ok := c.opt_["skip_status"]; ok {
+		params.Set("skip_status", fmt.Sprintf("%v", v))
+	}
+
+	urls := fmt.Sprintf("%s/%s.json", apiURL, "users/contributors")
+	urls += "?" + params.Encode()
+	req, _ := http.NewRequest("GET", urls, body)
+	res, err := c.s.client.Do(req)
+
+
+	if err != nil {
+		return nil, err
+	}
+	if err := checkResponse(res); err != nil {
+		return nil, err
+	}
+	ret := new(Tweet)
 	if err := json.NewDecoder(res.Body).Decode(ret); err != nil {
 		return ret, err
 	}
