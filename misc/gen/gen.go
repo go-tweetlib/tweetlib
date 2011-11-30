@@ -31,6 +31,9 @@ func printComment() {
 }
 
 func optSnippets() (funcs string, assigns string) {
+	if *options == "" {
+		return "", ""
+	}
 	for _, opt := range strings.Split(*options, ",") {
 		optName := strings.Split(opt, ":")[0]
 		optType := strings.Split(opt, ":")[1]
