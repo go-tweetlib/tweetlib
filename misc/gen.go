@@ -108,7 +108,7 @@ func (c *`+*service+*call+`Call) Do() (*`+*ret+`, os.Error) {
 	urls += "?" + params.Encode()
 	req, _ := http.NewRequest("GET", urls, body)
 	res, err := c.s.client.Do(req)`)
-
+	}
 	fmt.Println(`
 	if err != nil {
 		return nil, err
@@ -122,7 +122,6 @@ func (c *`+*service+*call+`Call) Do() (*`+*ret+`, os.Error) {
 	}
 	return ret, nil
 }`)
-}
 
 }
 
