@@ -59,3 +59,17 @@ type PhotoSize struct {
 	Height int    `json:"h,omitempty"`
 	Resize string `json:"resize,omitempty"`
 }
+
+type Message struct {
+	CreatedAt string `json:"created_at,omitempty"`
+	SenderScreenName string `json:"sender_screen_name,omitempty"`
+	Sender *User `json:"sender,omitempty"`
+	Text string `json:"text,omitempty"`
+	RecipientScreenName string `json:"recipient_screen_name,omitempty"`
+	Id string `json:"id,omitempty"`
+	Recipient *User `json:"recipient,omitempty"`
+	RecipientId string `json:"recipient_id,omitempty"`
+	SenderId string `json:"sender_id,omitempty"`
+}
+
+type MessageList []Message
