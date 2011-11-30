@@ -121,7 +121,6 @@ func (t *Transport) RoundTrip(req *http.Request) (*http.Response, os.Error) {
 //
 func (t *Transport) sign(req *http.Request) os.Error {
 	u, _ := url.ParseQuery(req.URL.RawQuery) //"status": {"testing..."}}
-	//u := url.Values{"status": {"testing..."}}
 	u.Set("oauth_signature_method", "HMAC-SHA1")
 	u.Set("oauth_timestamp", strconv.Itoa64(time.Seconds()))
 	u.Set("oauth_nonce", t.nonce())
@@ -149,14 +148,12 @@ func (t *Transport) sign(req *http.Request) os.Error {
 	}
 	base := req.Method + "&" +
 		t.percentEncode(urlForBase) + "&" + t.percentEncode((parameters))
-	fmt.Printf("base: %s\n", base)
 	// sign the base string with the consumer secret and aouth token string
 	signature := t.createSignature(base)
 
 	// Create the Authentication header
 	authHeader := "OAuth " + strings.Join(oauthPairs, ", ")
 	authHeader += ", oauth_signature=\"" + t.percentEncode((signature)) + "\""
-	fmt.Printf("Signature: %s\n", authHeader)
 	req.Header.Set("Authorization", authHeader)
 	return nil
 }
@@ -194,7 +191,6 @@ func (t *Transport) AccessToken(tempToken *TempToken, oauthVerifier string) os.E
 
 	var respBody []byte
 	respBody, _ = ioutil.ReadAll(resp.Body)
-	fmt.Printf("Body: %s\n", respBody)
 	data, err := url.ParseQuery(string(respBody))
 	if err != nil {
 		return err
