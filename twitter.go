@@ -68,7 +68,8 @@ func New(client *http.Client) (*Service, os.Error) {
 	s.Help = &HelpService{s: s}
 	s.DM = &DMService{s: s}
 	s.Users = &UsersService{s: s}
-
+	s.Account = &AccountService{s: s}
+	s.Lists = &ListsService{s: s}
 	return s, nil
 }
 
@@ -81,6 +82,8 @@ type Service struct {
 	Search    *SearchService
 	DM        *DMService
 	Users     *UsersService
+	Account   *AccountService
+	Lists *ListsService
 }
 
 type TimelinesService struct {
@@ -104,6 +107,14 @@ type DMService struct {
 }
 
 type UsersService struct {
+	s *Service
+}
+
+type AccountService struct {
+	s *Service
+}
+
+type ListsService struct {
 	s *Service
 }
 
@@ -1237,6 +1248,8 @@ func (c *HelpConfigurationCall) Do() (*Configuration, os.Error) {
 	if err := checkResponse(res); err != nil {
 		return nil, err
 	}
+	buf, _ := ioutil.ReadAll(res.Body)
+	fmt.Printf("sucks: %s\n", buf)
 	ret := new(Configuration)
 	if err := json.NewDecoder(res.Body).Decode(ret); err != nil {
 		return ret, err
@@ -2020,6 +2033,297 @@ func (c *UsersContributorsCall) Do() (*Tweet, os.Error) {
 		return nil, err
 	}
 	ret := new(Tweet)
+	if err := json.NewDecoder(res.Body).Decode(ret); err != nil {
+		return ret, err
+	}
+	return ret, nil
+}
+
+// Automatically generated
+// misc/gen --service Users --call SuggestedCategories --method GET --options lang:string
+
+type UsersSuggestedCategoriesCall struct {
+	s    *Service
+	opt_ map[string]interface{}
+}
+
+
+func (r *UsersService) SuggestedCategories() *UsersSuggestedCategoriesCall {
+	c := &UsersSuggestedCategoriesCall{s: r.s, opt_: make(map[string]interface{})}
+	return c
+}
+
+func (c *UsersSuggestedCategoriesCall) Lang(lang string) *UsersSuggestedCategoriesCall {
+	c.opt_["lang"] = lang
+	return c
+}
+
+
+func (c *UsersSuggestedCategoriesCall) Do() (*CategoryList, os.Error) {
+	var body io.Reader = nil
+	params := make(url.Values)
+
+	if v, ok := c.opt_["lang"]; ok {
+		params.Set("lang", fmt.Sprintf("%v", v))
+	}
+
+	urls := fmt.Sprintf("%s/%s.json", apiURL, "users/suggestions")
+	urls += "?" + params.Encode()
+	req, _ := http.NewRequest("GET", urls, body)
+	res, err := c.s.client.Do(req)
+
+	if err != nil {
+		return nil, err
+	}
+	if err := checkResponse(res); err != nil {
+		return nil, err
+	}
+	ret := new(CategoryList)
+	if err := json.NewDecoder(res.Body).Decode(ret); err != nil {
+		return ret, err
+	}
+	return ret, nil
+}
+
+// Automatically generated
+// ./misc/gen --service Users --call SuggestedUsers --required
+// slug:string --options lang:string --ret Category --endpoint
+// users/suggestions/slug
+
+type UsersSuggestedUsersCall struct {
+	s    *Service
+	slug string
+	opt_ map[string]interface{}
+}
+
+
+func (r *UsersService) SuggestedUsers(slug string) *UsersSuggestedUsersCall {
+	c := &UsersSuggestedUsersCall{s: r.s, opt_: make(map[string]interface{})}
+	c.slug = slug
+	return c
+}
+
+func (c *UsersSuggestedUsersCall) Lang(lang string) *UsersSuggestedUsersCall {
+	c.opt_["lang"] = lang
+	return c
+}
+
+
+func (c *UsersSuggestedUsersCall) Do() (*Category, os.Error) {
+	var body io.Reader = nil
+	params := make(url.Values)
+	params.Set("slug", fmt.Sprintf("%v", c.slug))
+
+	if v, ok := c.opt_["lang"]; ok {
+		params.Set("lang", fmt.Sprintf("%v", v))
+	}
+
+	urls := fmt.Sprintf("%s/%s.json", apiURL, fmt.Sprintf("users/suggestions/%s", c.slug))
+	urls += "?" + params.Encode()
+	req, _ := http.NewRequest("GET", urls, body)
+	res, err := c.s.client.Do(req)
+
+	if err != nil {
+		return nil, err
+	}
+	if err := checkResponse(res); err != nil {
+		return nil, err
+	}
+	ret := new(Category)
+	if err := json.NewDecoder(res.Body).Decode(ret); err != nil {
+		return ret, err
+	}
+	return ret, nil
+}
+
+
+// Acount calls --------------------------------------------------------------
+
+// Automatically generated
+// ./misc/gen --service Account --call UpdateProfile --options
+// name:string,url:string,location:string,description:string,include_entities:bool,skip_status:bool
+// --method POST --ret User --endpoint account/update_profile
+
+type AccountUpdateProfileCall struct {
+	s    *Service
+	opt_ map[string]interface{}
+}
+
+
+func (r *AccountService) UpdateProfile() *AccountUpdateProfileCall {
+	c := &AccountUpdateProfileCall{s: r.s, opt_: make(map[string]interface{})}
+	return c
+}
+
+func (c *AccountUpdateProfileCall) Name(name string) *AccountUpdateProfileCall {
+	c.opt_["name"] = name
+	return c
+}
+
+func (c *AccountUpdateProfileCall) Url(url string) *AccountUpdateProfileCall {
+	c.opt_["url"] = url
+	return c
+}
+
+func (c *AccountUpdateProfileCall) Location(location string) *AccountUpdateProfileCall {
+	c.opt_["location"] = location
+	return c
+}
+
+func (c *AccountUpdateProfileCall) Description(description string) *AccountUpdateProfileCall {
+	c.opt_["description"] = description
+	return c
+}
+
+func (c *AccountUpdateProfileCall) IncludeEntities(include_entities bool) *AccountUpdateProfileCall {
+	c.opt_["include_entities"] = include_entities
+	return c
+}
+
+func (c *AccountUpdateProfileCall) SkipStatus(skip_status bool) *AccountUpdateProfileCall {
+	c.opt_["skip_status"] = skip_status
+	return c
+}
+
+
+func (c *AccountUpdateProfileCall) Do() (*User, os.Error) {
+	var body io.Reader = nil
+	params := make(url.Values)
+
+	if v, ok := c.opt_["name"]; ok {
+		params.Set("name", fmt.Sprintf("%v", v))
+	}
+
+	if v, ok := c.opt_["url"]; ok {
+		params.Set("url", fmt.Sprintf("%v", v))
+	}
+
+	if v, ok := c.opt_["location"]; ok {
+		params.Set("location", fmt.Sprintf("%v", v))
+	}
+
+	if v, ok := c.opt_["description"]; ok {
+		params.Set("description", fmt.Sprintf("%v", v))
+	}
+
+	if v, ok := c.opt_["include_entities"]; ok {
+		params.Set("include_entities", fmt.Sprintf("%v", v))
+	}
+
+	if v, ok := c.opt_["skip_status"]; ok {
+		params.Set("skip_status", fmt.Sprintf("%v", v))
+	}
+
+	urls := fmt.Sprintf("%s/%s.json", apiURL, "account/update_profile")
+	urls += "?" + params.Encode()
+	body = bytes.NewBuffer([]byte(params.Encode()))
+	ctype := "application/x-www-form-urlencoded"
+	req, _ := http.NewRequest("POST", urls, body)
+	req.Header.Set("Content-Type", ctype)
+	res, err := c.s.client.Do(req)
+
+	if err != nil {
+		return nil, err
+	}
+	if err := checkResponse(res); err != nil {
+		return nil, err
+	}
+	ret := new(User)
+	if err := json.NewDecoder(res.Body).Decode(ret); err != nil {
+		return ret, err
+	}
+	return ret, nil
+}
+
+// Automatically generated
+// ./misc/gen --service Account --call RateLimitStatus --ret
+// LimitStatus --endpoint account/rate_limit_status
+
+type AccountRateLimitStatusCall struct {
+	s    *Service
+	opt_ map[string]interface{}
+}
+
+
+func (r *AccountService) RateLimitStatus() *AccountRateLimitStatusCall {
+	c := &AccountRateLimitStatusCall{s: r.s, opt_: make(map[string]interface{})}
+	return c
+}
+
+
+func (c *AccountRateLimitStatusCall) Do() (*LimitStatus, os.Error) {
+	var body io.Reader = nil
+	params := make(url.Values)
+
+	urls := fmt.Sprintf("%s/%s.json", apiURL, "account/rate_limit_status")
+	urls += "?" + params.Encode()
+	req, _ := http.NewRequest("GET", urls, body)
+	res, err := c.s.client.Do(req)
+
+	if err != nil {
+		return nil, err
+	}
+	if err := checkResponse(res); err != nil {
+		return nil, err
+	}
+	ret := new(LimitStatus)
+	if err := json.NewDecoder(res.Body).Decode(ret); err != nil {
+		return ret, err
+	}
+	return ret, nil
+}
+
+// Automatically generated
+// ./misc/gen --service Lists --call All --options
+// user_id:string,screen_name:string --ret ListList --endpoint
+// lists/all
+
+type ListsAllCall struct {
+	s    *Service
+	opt_ map[string]interface{}
+}
+
+
+func (r *ListsService) All() *ListsAllCall {
+	c := &ListsAllCall{s: r.s, opt_: make(map[string]interface{})}
+	return c
+}
+
+func (c *ListsAllCall) UserId(user_id string) *ListsAllCall {
+	c.opt_["user_id"] = user_id
+	return c
+}
+
+func (c *ListsAllCall) ScreenName(screen_name string) *ListsAllCall {
+	c.opt_["screen_name"] = screen_name
+	return c
+}
+
+
+func (c *ListsAllCall) Do() (*ListList, os.Error) {
+	var body io.Reader = nil
+	params := make(url.Values)
+
+	if v, ok := c.opt_["user_id"]; ok {
+		params.Set("user_id", fmt.Sprintf("%v", v))
+	}
+
+	if v, ok := c.opt_["screen_name"]; ok {
+		params.Set("screen_name", fmt.Sprintf("%v", v))
+	}
+
+	urls := fmt.Sprintf("%s/%s.json", apiURL, "lists/all")
+	urls += "?" + params.Encode()
+	req, _ := http.NewRequest("GET", urls, body)
+	res, err := c.s.client.Do(req)
+
+	if err != nil {
+		return nil, err
+	}
+	if err := checkResponse(res); err != nil {
+		return nil, err
+	}
+	ret := new(ListList)
 	if err := json.NewDecoder(res.Body).Decode(ret); err != nil {
 		return ret, err
 	}
