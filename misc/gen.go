@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"os"
 	"strings"
 )
 
@@ -11,7 +12,9 @@ var (
 	required = flag.String("required", "", "Comma-separated list of required parameters (name:type)")
 	options = flag.String("options", "", "Comma-separated list of options (name:type)")
 	call = flag.String("call", "", "Call name")
-	method = flag.String("method", "", "HTTP method (GET or POST)")
+	method = flag.String("method", "GET", "HTTP method (GET or POST)")
+	ret = flag.String("ret", "interface{}", "Return type")
+	endpoint = flag.String("endpoint", "", "Twitter RESP API endpoint")
 )
 
 func camel(s string) string {
@@ -20,6 +23,11 @@ func camel(s string) string {
 		news += strings.ToUpper(w[0:1]) + w[1:]
 	}
 	return news
+}
+
+func printComment() {
+	fmt.Println("// Automatically generated")
+	fmt.Printf("// %s\n", strings.Join(os.Args, " "))
 }
 
 func optSnippets() (funcs string, assigns string) {
@@ -65,21 +73,29 @@ func printCall() {
 	}}
 	pars := strings.Replace(*required, ",", " ", -1)
 	fmt.Println(`func (r *`+*service+`Service) `+*call+`(`+pars+`) *`+*service+*call+`Call {
-	c := &`+*service+*call+`Call{{s: r.s, opt_: make(map[string]interface{{}})}}`)
+	c := &`+*service+*call+`Call{s: r.s, opt_: make(map[string]interface{})}`)
 	fmt.Printf("%s\treturn c\n}\n", assigns)
 }
 
 func printDo(assigns string) {
 	fmt.Print(`
-func (c *`+*service+*call+`Call) Do() (*Tweet, os.Error) {
+func (c *`+*service+*call+`Call) Do() (*`+*ret+`, os.Error) {
 	var body io.Reader = nil
 	params := make(url.Values)
-	params.Set("status", fmt.Sprintf("%v", c.status))`)
+`)
+
+	if *required != "" {
+		for _, r := range strings.Split(*required, ",") {
+			rName := strings.Split(r, ":")[0]
+			fmt.Printf("\tparams.Set(\"%s\", fmt.Sprintf(\"%%v\", c.%s))\n", rName, rName)
+		}
+	}
+
 	fmt.Print(assigns)
 
 	if *method == "POST" {
 		fmt.Println(`
-	urls := fmt.Sprintf("%s/%s.json", apiURL, "statuses/update")
+	urls := fmt.Sprintf("%s/%s.json", apiURL, "`+*endpoint+`")
 	urls += "?" + params.Encode()
 	body = bytes.NewBuffer([]byte(params.Encode()))
 	ctype := "application/x-www-form-urlencoded"
@@ -88,7 +104,7 @@ func (c *`+*service+*call+`Call) Do() (*Tweet, os.Error) {
 	res, err := c.s.client.Do(req)`)
 	} else {
 		fmt.Println(`
-	urls := fmt.Sprintf("%s/%s.json", apiURL, fmt.Sprintf("statuses/%s/retweeted_by/ids", c.id))
+	urls := fmt.Sprintf("%s/%s.json", apiURL, "`+*endpoint+`")
 	urls += "?" + params.Encode()
 	req, _ := http.NewRequest("GET", urls, body)
 	res, err := c.s.client.Do(req)`)
@@ -100,7 +116,7 @@ func (c *`+*service+*call+`Call) Do() (*Tweet, os.Error) {
 	if err := checkResponse(res); err != nil {
 		return nil, err
 	}
-	ret := new(Tweet)
+	ret := new(`+*ret+`)
 	if err := json.NewDecoder(res.Body).Decode(ret); err != nil {
 		return ret, err
 	}
@@ -112,6 +128,7 @@ func (c *`+*service+*call+`Call) Do() (*Tweet, os.Error) {
 
 func errorReq(s string) {
 	fmt.Printf("Parameter '%s' is required.\n", s)
+	flag.PrintDefaults()
 }
 
 func main() {
@@ -133,6 +150,7 @@ func main() {
 
 	funcs, assigns := optSnippets()
 
+	printComment()
 	printType()
 	printCall()
 	fmt.Println(funcs)
