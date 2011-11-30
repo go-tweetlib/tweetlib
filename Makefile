@@ -1,6 +1,6 @@
 include $(GOROOT)/src/Make.inc
 
-TARG=tweetlib
+TARG=github.com/robteix/tweetlib
 GOFILES=\
 	twitter.go\
 	types.go\
