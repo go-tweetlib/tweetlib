@@ -169,7 +169,7 @@ func (t *Transport) createSignature(base string) string {
 	return sha1Hash.String()
 }
 
-func (t *Transport) AccessToken(tempToken *TempToken, oauthVerifier string) os.Error {
+func (t *Transport) AccessToken(tempToken *TempToken, oauthVerifier string) (*Token, os.Error) {
 
 	u := &url.Values{"oauth_token": {tempToken.Token},
 		"oauth_verifier": {oauthVerifier}}
@@ -178,11 +178,11 @@ func (t *Transport) AccessToken(tempToken *TempToken, oauthVerifier string) os.E
 	urls := fmt.Sprintf("%s?%s", accessTokenURL, u.Encode())
 	req, err := http.NewRequest("POST", urls, body)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	resp, err := t.RoundTrip(req)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	//if resp.StatusCode != 200 {
 	//	return os.NewError("Authentication Error")
@@ -193,11 +193,11 @@ func (t *Transport) AccessToken(tempToken *TempToken, oauthVerifier string) os.E
 	respBody, _ = ioutil.ReadAll(resp.Body)
 	data, err := url.ParseQuery(string(respBody))
 	if err != nil {
-		return err
+		return nil, err
 	}
 	t.OAuthToken = data.Get("oauth_token")
 	t.OAuthSecret = data.Get("oauth_token_secret")
-	return nil
+	return &Token{OAuthToken: t.OAuthToken, OAuthSecret: t.OAuthSecret}, nil
 }
 
 func (t *Transport) TempToken() (*TempToken, os.Error) {
