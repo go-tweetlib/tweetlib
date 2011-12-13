@@ -1881,6 +1881,7 @@ func (c *UsersShowCall) Do() (*User, os.Error) {
 
 	urls := fmt.Sprintf("%s/%s.json", apiURL, "users/show")
 	urls += "?" + params.Encode()
+	fmt.Printf("urls = %s\n", urls)
 	req, _ := http.NewRequest("GET", urls, body)
 	res, err := c.s.client.Do(req)
 
@@ -2272,6 +2273,66 @@ func (c *AccountRateLimitStatusCall) Do() (*LimitStatus, os.Error) {
 	}
 	return ret, nil
 }
+
+
+// Automatically generated
+// ./misc/gen/gen --service Account --call VerifyCredentials --options
+// include_entities:bool,skip_status:bool --ret User --endpoint
+// account/verify_credentials
+
+type AccountVerifyCredentialsCall struct {
+	s    *Service
+	opt_ map[string]interface{}
+}
+
+
+func (r *AccountService) VerifyCredentials() *AccountVerifyCredentialsCall {
+	c := &AccountVerifyCredentialsCall{s: r.s, opt_: make(map[string]interface{})}
+	return c
+}
+
+func (c *AccountVerifyCredentialsCall) IncludeEntities(include_entities bool) *AccountVerifyCredentialsCall {
+	c.opt_["include_entities"] = include_entities
+	return c
+}
+
+func (c *AccountVerifyCredentialsCall) SkipStatus(skip_status bool) *AccountVerifyCredentialsCall {
+	c.opt_["skip_status"] = skip_status
+	return c
+}
+
+
+func (c *AccountVerifyCredentialsCall) Do() (*User, os.Error) {
+	var body io.Reader = nil
+	params := make(url.Values)
+
+	if v, ok := c.opt_["include_entities"]; ok {
+		params.Set("include_entities", fmt.Sprintf("%v", v))
+	}
+
+	if v, ok := c.opt_["skip_status"]; ok {
+		params.Set("skip_status", fmt.Sprintf("%v", v))
+	}
+
+	urls := fmt.Sprintf("%s/%s.json", apiURL, "account/verify_credentials")
+	urls += "?" + params.Encode()
+	req, _ := http.NewRequest("GET", urls, body)
+	res, err := c.s.client.Do(req)
+
+	if err != nil {
+		return nil, err
+	}
+	if err := checkResponse(res); err != nil {
+		return nil, err
+	}
+	ret := new(User)
+	if err := json.NewDecoder(res.Body).Decode(ret); err != nil {
+		return ret, err
+	}
+	return ret, nil
+}
+
+
 
 // Automatically generated
 // ./misc/gen --service Lists --call All --options
