@@ -14,6 +14,7 @@ import (
 	"json"
 	"os"
 	"url"
+	"reflect"
 	"bytes"
 )
 
@@ -83,7 +84,7 @@ type Service struct {
 	DM        *DMService
 	Users     *UsersService
 	Account   *AccountService
-	Lists *ListsService
+	Lists     *ListsService
 }
 
 type TimelinesService struct {
@@ -159,8 +160,8 @@ func (c *TimelinesListCall) Do() (*TweetList, os.Error) {
 		return nil, err
 	}
 	ret := new(TweetList)
-	if err := json.NewDecoder(res.Body).Decode(ret); err != nil {
-		return ret, err
+	if err := json.NewDecoder(res.Body).Decode(ret); err != nil && reflect.TypeOf(err) != reflect.TypeOf(&json.UnmarshalTypeError{}) {
+		return nil, err
 	}
 	return ret, nil
 }
@@ -261,8 +262,8 @@ func (c *TimelinesHomeTimelineCall) Do() (*TweetList, os.Error) {
 		return nil, err
 	}
 	ret := new(TweetList)
-	if err := json.NewDecoder(res.Body).Decode(ret); err != nil {
-		return ret, err
+	if err := json.NewDecoder(res.Body).Decode(ret); err != nil && reflect.TypeOf(err) != reflect.TypeOf(&json.UnmarshalTypeError{}) {
+		return nil, err
 	}
 	return ret, nil
 }
@@ -363,8 +364,8 @@ func (c *TimelinesMentionsCall) Do() (*TweetList, os.Error) {
 		return nil, err
 	}
 	ret := new(TweetList)
-	if err := json.NewDecoder(res.Body).Decode(ret); err != nil {
-		return ret, err
+	if err := json.NewDecoder(res.Body).Decode(ret); err != nil && reflect.TypeOf(err) != reflect.TypeOf(&json.UnmarshalTypeError{}) {
+		return nil, err
 	}
 	return ret, nil
 }
@@ -410,8 +411,8 @@ func (c *TimelinesPublicTimelineCall) Do() (*TweetList, os.Error) {
 		return nil, err
 	}
 	ret := new(TweetList)
-	if err := json.NewDecoder(res.Body).Decode(ret); err != nil {
-		return ret, err
+	if err := json.NewDecoder(res.Body).Decode(ret); err != nil && reflect.TypeOf(err) != reflect.TypeOf(&json.UnmarshalTypeError{}) {
+		return nil, err
 	}
 	return ret, nil
 }
@@ -512,8 +513,8 @@ func (c *TimelinesRetweetedByMeCall) Do() (*TweetList, os.Error) {
 		return nil, err
 	}
 	ret := new(TweetList)
-	if err := json.NewDecoder(res.Body).Decode(ret); err != nil {
-		return ret, err
+	if err := json.NewDecoder(res.Body).Decode(ret); err != nil && reflect.TypeOf(err) != reflect.TypeOf(&json.UnmarshalTypeError{}) {
+		return nil, err
 	}
 	return ret, nil
 }
@@ -614,8 +615,8 @@ func (c *TimelinesRetweetedToMeCall) Do() (*TweetList, os.Error) {
 		return nil, err
 	}
 	ret := new(TweetList)
-	if err := json.NewDecoder(res.Body).Decode(ret); err != nil {
-		return ret, err
+	if err := json.NewDecoder(res.Body).Decode(ret); err != nil && reflect.TypeOf(err) != reflect.TypeOf(&json.UnmarshalTypeError{}) {
+		return nil, err
 	}
 	return ret, nil
 }
@@ -693,8 +694,8 @@ func (c *TimelinesRetweetsOfMeCall) Do() (*TweetList, os.Error) {
 		return nil, err
 	}
 	ret := new(TweetList)
-	if err := json.NewDecoder(res.Body).Decode(ret); err != nil {
-		return ret, err
+	if err := json.NewDecoder(res.Body).Decode(ret); err != nil && reflect.TypeOf(err) != reflect.TypeOf(&json.UnmarshalTypeError{}) {
+		return nil, err
 	}
 	return ret, nil
 }
@@ -775,8 +776,8 @@ func (c *TimelinesRetweetedToUserCall) Do() (*TweetList, os.Error) {
 		return nil, err
 	}
 	ret := new(TweetList)
-	if err := json.NewDecoder(res.Body).Decode(ret); err != nil {
-		return ret, err
+	if err := json.NewDecoder(res.Body).Decode(ret); err != nil && reflect.TypeOf(err) != reflect.TypeOf(&json.UnmarshalTypeError{}) {
+		return nil, err
 	}
 	return ret, nil
 }
@@ -857,8 +858,8 @@ func (c *TimelinesRetweetedByUserCall) Do() (*TweetList, os.Error) {
 		return nil, err
 	}
 	ret := new(TweetList)
-	if err := json.NewDecoder(res.Body).Decode(ret); err != nil {
-		return ret, err
+	if err := json.NewDecoder(res.Body).Decode(ret); err != nil && reflect.TypeOf(err) != reflect.TypeOf(&json.UnmarshalTypeError{}) {
+		return nil, err
 	}
 	return ret, nil
 }
@@ -907,8 +908,8 @@ func (c *TweetsRetweetedByCall) Do() (*UserList, os.Error) {
 		return nil, err
 	}
 	ret := new(UserList)
-	if err := json.NewDecoder(res.Body).Decode(ret); err != nil {
-		return ret, err
+	if err := json.NewDecoder(res.Body).Decode(ret); err != nil && reflect.TypeOf(err) != reflect.TypeOf(&json.UnmarshalTypeError{}) {
+		return nil, err
 	}
 	return ret, nil
 }
@@ -957,8 +958,8 @@ func (c *TweetsRetweetedByIdsCall) Do() (*[]string, os.Error) {
 		return nil, err
 	}
 	ret := new([]string)
-	if err := json.NewDecoder(res.Body).Decode(ret); err != nil {
-		return ret, err
+	if err := json.NewDecoder(res.Body).Decode(ret); err != nil && reflect.TypeOf(err) != reflect.TypeOf(&json.UnmarshalTypeError{}) {
+		return nil, err
 	}
 	return ret, nil
 }
@@ -1022,8 +1023,8 @@ func (c *TweetsRetweetsCall) Do() (*TweetList, os.Error) {
 		return nil, err
 	}
 	ret := new(TweetList)
-	if err := json.NewDecoder(res.Body).Decode(ret); err != nil {
-		return ret, err
+	if err := json.NewDecoder(res.Body).Decode(ret); err != nil && reflect.TypeOf(err) != reflect.TypeOf(&json.UnmarshalTypeError{}) {
+		return nil, err
 	}
 	return ret, nil
 }
@@ -1072,8 +1073,8 @@ func (c *TweetsShowCall) Do() (*Tweet, os.Error) {
 		return nil, err
 	}
 	ret := new(Tweet)
-	if err := json.NewDecoder(res.Body).Decode(ret); err != nil {
-		return ret, err
+	if err := json.NewDecoder(res.Body).Decode(ret); err != nil && reflect.TypeOf(err) != reflect.TypeOf(&json.UnmarshalTypeError{}) {
+		return nil, err
 	}
 	return ret, nil
 }
@@ -1126,8 +1127,8 @@ func (c *TweetsDestroyCall) Do() (*Tweet, os.Error) {
 		return nil, err
 	}
 	ret := new(Tweet)
-	if err := json.NewDecoder(res.Body).Decode(ret); err != nil {
-		return ret, err
+	if err := json.NewDecoder(res.Body).Decode(ret); err != nil && reflect.TypeOf(err) != reflect.TypeOf(&json.UnmarshalTypeError{}) {
+		return nil, err
 	}
 	return ret, nil
 }
@@ -1180,8 +1181,8 @@ func (c *TweetsRetweetCall) Do() (*Tweet, os.Error) {
 		return nil, err
 	}
 	ret := new(Tweet)
-	if err := json.NewDecoder(res.Body).Decode(ret); err != nil {
-		return ret, err
+	if err := json.NewDecoder(res.Body).Decode(ret); err != nil && reflect.TypeOf(err) != reflect.TypeOf(&json.UnmarshalTypeError{}) {
+		return nil, err
 	}
 	return ret, nil
 }
@@ -1218,8 +1219,8 @@ func (c *TweetsUpdateCall) Do() (*Tweet, os.Error) {
 		return nil, err
 	}
 	ret := new(Tweet)
-	if err := json.NewDecoder(res.Body).Decode(ret); err != nil {
-		return ret, err
+	if err := json.NewDecoder(res.Body).Decode(ret); err != nil && reflect.TypeOf(err) != reflect.TypeOf(&json.UnmarshalTypeError{}) {
+		return nil, err
 	}
 	return ret, nil
 }
@@ -1251,8 +1252,8 @@ func (c *HelpConfigurationCall) Do() (*Configuration, os.Error) {
 	buf, _ := ioutil.ReadAll(res.Body)
 	fmt.Printf("sucks: %s\n", buf)
 	ret := new(Configuration)
-	if err := json.NewDecoder(res.Body).Decode(ret); err != nil {
-		return ret, err
+	if err := json.NewDecoder(res.Body).Decode(ret); err != nil && reflect.TypeOf(err) != reflect.TypeOf(&json.UnmarshalTypeError{}) {
+		return nil, err
 	}
 	return ret, nil
 }
@@ -1385,8 +1386,8 @@ func (c *SearchSearchCall) Do() (*TweetList, os.Error) {
 		return nil, err
 	}
 	ret := new(TweetList)
-	if err := json.NewDecoder(res.Body).Decode(ret); err != nil {
-		return ret, err
+	if err := json.NewDecoder(res.Body).Decode(ret); err != nil && reflect.TypeOf(err) != reflect.TypeOf(&json.UnmarshalTypeError{}) {
+		return nil, err
 	}
 	return ret, nil
 }
@@ -1474,8 +1475,8 @@ func (c *DMMessagesCall) Do() (*MessageList, os.Error) {
 		return nil, err
 	}
 	ret := new(MessageList)
-	if err := json.NewDecoder(res.Body).Decode(ret); err != nil {
-		return ret, err
+	if err := json.NewDecoder(res.Body).Decode(ret); err != nil && reflect.TypeOf(err) != reflect.TypeOf(&json.UnmarshalTypeError{}) {
+		return nil, err
 	}
 	return ret, nil
 }
@@ -1551,8 +1552,8 @@ func (c *DMMessagesSentCall) Do() (*MessageList, os.Error) {
 		return nil, err
 	}
 	ret := new(MessageList)
-	if err := json.NewDecoder(res.Body).Decode(ret); err != nil {
-		return ret, err
+	if err := json.NewDecoder(res.Body).Decode(ret); err != nil && reflect.TypeOf(err) != reflect.TypeOf(&json.UnmarshalTypeError{}) {
+		return nil, err
 	}
 	return ret, nil
 }
@@ -1607,8 +1608,8 @@ func (c *DMDestroyCall) Do() (*Message, os.Error) {
 		return nil, err
 	}
 	ret := new(Message)
-	if err := json.NewDecoder(res.Body).Decode(ret); err != nil {
-		return ret, err
+	if err := json.NewDecoder(res.Body).Decode(ret); err != nil && reflect.TypeOf(err) != reflect.TypeOf(&json.UnmarshalTypeError{}) {
+		return nil, err
 	}
 	return ret, nil
 }
@@ -1673,8 +1674,8 @@ func (c *DMNewCall) Do() (*Tweet, os.Error) {
 		return nil, err
 	}
 	ret := new(Tweet)
-	if err := json.NewDecoder(res.Body).Decode(ret); err != nil {
-		return ret, err
+	if err := json.NewDecoder(res.Body).Decode(ret); err != nil && reflect.TypeOf(err) != reflect.TypeOf(&json.UnmarshalTypeError{}) {
+		return nil, err
 	}
 	return ret, nil
 }
@@ -1708,8 +1709,8 @@ func (c *DMShowCall) Do() (*Message, os.Error) {
 		return nil, err
 	}
 	ret := new(Message)
-	if err := json.NewDecoder(res.Body).Decode(ret); err != nil {
-		return ret, err
+	if err := json.NewDecoder(res.Body).Decode(ret); err != nil && reflect.TypeOf(err) != reflect.TypeOf(&json.UnmarshalTypeError{}) {
+		return nil, err
 	}
 	return ret, nil
 }
@@ -1770,8 +1771,8 @@ func (c *UsersLookUpCall) Do() (*UserList, os.Error) {
 		return nil, err
 	}
 	ret := new(UserList)
-	if err := json.NewDecoder(res.Body).Decode(ret); err != nil {
-		return ret, err
+	if err := json.NewDecoder(res.Body).Decode(ret); err != nil && reflect.TypeOf(err) != reflect.TypeOf(&json.UnmarshalTypeError{}) {
+		return nil, err
 	}
 	return ret, nil
 }
@@ -1832,8 +1833,8 @@ func (c *UsersSearchCall) Do() (*UserList, os.Error) {
 		return nil, err
 	}
 	ret := new(UserList)
-	if err := json.NewDecoder(res.Body).Decode(ret); err != nil {
-		return ret, err
+	if err := json.NewDecoder(res.Body).Decode(ret); err != nil && reflect.TypeOf(err) != reflect.TypeOf(&json.UnmarshalTypeError{}) {
+		return nil, err
 	}
 	return ret, nil
 }
@@ -1892,12 +1893,11 @@ func (c *UsersShowCall) Do() (*User, os.Error) {
 		return nil, err
 	}
 	ret := new(User)
-	if err := json.NewDecoder(res.Body).Decode(ret); err != nil {
-		return ret, err
+	if err := json.NewDecoder(res.Body).Decode(ret); err != nil && reflect.TypeOf(err) != reflect.TypeOf(&json.UnmarshalTypeError{}) && reflect.TypeOf(err) != reflect.TypeOf(&json.UnmarshalTypeError{}) {
+		return nil, err
 	}
 	return ret, nil
 }
-
 
 type UsersContributeesCall struct {
 	s    *Service
@@ -1929,7 +1929,6 @@ func (c *UsersContributeesCall) SkipStatus(skip_status bool) *UsersContributeesC
 	return c
 }
 
-
 func (c *UsersContributeesCall) Do() (*UserList, os.Error) {
 	var body io.Reader = nil
 	params := make(url.Values)
@@ -1956,7 +1955,6 @@ func (c *UsersContributeesCall) Do() (*UserList, os.Error) {
 	req, _ := http.NewRequest("GET", urls, body)
 	res, err := c.s.client.Do(req)
 
-
 	if err != nil {
 		return nil, err
 	}
@@ -1964,8 +1962,8 @@ func (c *UsersContributeesCall) Do() (*UserList, os.Error) {
 		return nil, err
 	}
 	ret := new(UserList)
-	if err := json.NewDecoder(res.Body).Decode(ret); err != nil {
-		return ret, err
+	if err := json.NewDecoder(res.Body).Decode(ret); err != nil && reflect.TypeOf(err) != reflect.TypeOf(&json.UnmarshalTypeError{}) {
+		return nil, err
 	}
 	return ret, nil
 }
@@ -2000,7 +1998,6 @@ func (c *UsersContributorsCall) SkipStatus(skip_status bool) *UsersContributorsC
 	return c
 }
 
-
 func (c *UsersContributorsCall) Do() (*Tweet, os.Error) {
 	var body io.Reader = nil
 	params := make(url.Values)
@@ -2026,7 +2023,6 @@ func (c *UsersContributorsCall) Do() (*Tweet, os.Error) {
 	req, _ := http.NewRequest("GET", urls, body)
 	res, err := c.s.client.Do(req)
 
-
 	if err != nil {
 		return nil, err
 	}
@@ -2034,8 +2030,8 @@ func (c *UsersContributorsCall) Do() (*Tweet, os.Error) {
 		return nil, err
 	}
 	ret := new(Tweet)
-	if err := json.NewDecoder(res.Body).Decode(ret); err != nil {
-		return ret, err
+	if err := json.NewDecoder(res.Body).Decode(ret); err != nil && reflect.TypeOf(err) != reflect.TypeOf(&json.UnmarshalTypeError{}) {
+		return nil, err
 	}
 	return ret, nil
 }
@@ -2048,7 +2044,6 @@ type UsersSuggestedCategoriesCall struct {
 	opt_ map[string]interface{}
 }
 
-
 func (r *UsersService) SuggestedCategories() *UsersSuggestedCategoriesCall {
 	c := &UsersSuggestedCategoriesCall{s: r.s, opt_: make(map[string]interface{})}
 	return c
@@ -2058,7 +2053,6 @@ func (c *UsersSuggestedCategoriesCall) Lang(lang string) *UsersSuggestedCategori
 	c.opt_["lang"] = lang
 	return c
 }
-
 
 func (c *UsersSuggestedCategoriesCall) Do() (*CategoryList, os.Error) {
 	var body io.Reader = nil
@@ -2080,8 +2074,8 @@ func (c *UsersSuggestedCategoriesCall) Do() (*CategoryList, os.Error) {
 		return nil, err
 	}
 	ret := new(CategoryList)
-	if err := json.NewDecoder(res.Body).Decode(ret); err != nil {
-		return ret, err
+	if err := json.NewDecoder(res.Body).Decode(ret); err != nil && reflect.TypeOf(err) != reflect.TypeOf(&json.UnmarshalTypeError{}) {
+		return nil, err
 	}
 	return ret, nil
 }
@@ -2097,7 +2091,6 @@ type UsersSuggestedUsersCall struct {
 	opt_ map[string]interface{}
 }
 
-
 func (r *UsersService) SuggestedUsers(slug string) *UsersSuggestedUsersCall {
 	c := &UsersSuggestedUsersCall{s: r.s, opt_: make(map[string]interface{})}
 	c.slug = slug
@@ -2108,7 +2101,6 @@ func (c *UsersSuggestedUsersCall) Lang(lang string) *UsersSuggestedUsersCall {
 	c.opt_["lang"] = lang
 	return c
 }
-
 
 func (c *UsersSuggestedUsersCall) Do() (*Category, os.Error) {
 	var body io.Reader = nil
@@ -2131,12 +2123,11 @@ func (c *UsersSuggestedUsersCall) Do() (*Category, os.Error) {
 		return nil, err
 	}
 	ret := new(Category)
-	if err := json.NewDecoder(res.Body).Decode(ret); err != nil {
-		return ret, err
+	if err := json.NewDecoder(res.Body).Decode(ret); err != nil && reflect.TypeOf(err) != reflect.TypeOf(&json.UnmarshalTypeError{}) {
+		return nil, err
 	}
 	return ret, nil
 }
-
 
 // Acount calls --------------------------------------------------------------
 
@@ -2149,7 +2140,6 @@ type AccountUpdateProfileCall struct {
 	s    *Service
 	opt_ map[string]interface{}
 }
-
 
 func (r *AccountService) UpdateProfile() *AccountUpdateProfileCall {
 	c := &AccountUpdateProfileCall{s: r.s, opt_: make(map[string]interface{})}
@@ -2185,7 +2175,6 @@ func (c *AccountUpdateProfileCall) SkipStatus(skip_status bool) *AccountUpdatePr
 	c.opt_["skip_status"] = skip_status
 	return c
 }
-
 
 func (c *AccountUpdateProfileCall) Do() (*User, os.Error) {
 	var body io.Reader = nil
@@ -2230,8 +2219,8 @@ func (c *AccountUpdateProfileCall) Do() (*User, os.Error) {
 		return nil, err
 	}
 	ret := new(User)
-	if err := json.NewDecoder(res.Body).Decode(ret); err != nil {
-		return ret, err
+	if err := json.NewDecoder(res.Body).Decode(ret); err != nil && reflect.TypeOf(err) != reflect.TypeOf(&json.UnmarshalTypeError{}) {
+		return nil, err
 	}
 	return ret, nil
 }
@@ -2245,12 +2234,10 @@ type AccountRateLimitStatusCall struct {
 	opt_ map[string]interface{}
 }
 
-
 func (r *AccountService) RateLimitStatus() *AccountRateLimitStatusCall {
 	c := &AccountRateLimitStatusCall{s: r.s, opt_: make(map[string]interface{})}
 	return c
 }
-
 
 func (c *AccountRateLimitStatusCall) Do() (*LimitStatus, os.Error) {
 	var body io.Reader = nil
@@ -2268,12 +2255,11 @@ func (c *AccountRateLimitStatusCall) Do() (*LimitStatus, os.Error) {
 		return nil, err
 	}
 	ret := new(LimitStatus)
-	if err := json.NewDecoder(res.Body).Decode(ret); err != nil {
-		return ret, err
+	if err := json.NewDecoder(res.Body).Decode(ret); err != nil && reflect.TypeOf(err) != reflect.TypeOf(&json.UnmarshalTypeError{}) {
+		return nil, err
 	}
 	return ret, nil
 }
-
 
 // Automatically generated
 // ./misc/gen/gen --service Account --call VerifyCredentials --options
@@ -2284,7 +2270,6 @@ type AccountVerifyCredentialsCall struct {
 	s    *Service
 	opt_ map[string]interface{}
 }
-
 
 func (r *AccountService) VerifyCredentials() *AccountVerifyCredentialsCall {
 	c := &AccountVerifyCredentialsCall{s: r.s, opt_: make(map[string]interface{})}
@@ -2300,7 +2285,6 @@ func (c *AccountVerifyCredentialsCall) SkipStatus(skip_status bool) *AccountVeri
 	c.opt_["skip_status"] = skip_status
 	return c
 }
-
 
 func (c *AccountVerifyCredentialsCall) Do() (*User, os.Error) {
 	var body io.Reader = nil
@@ -2326,13 +2310,11 @@ func (c *AccountVerifyCredentialsCall) Do() (*User, os.Error) {
 		return nil, err
 	}
 	ret := new(User)
-	if err := json.NewDecoder(res.Body).Decode(ret); err != nil {
-		return ret, err
+	if err := json.NewDecoder(res.Body).Decode(ret); err != nil && reflect.TypeOf(err) != reflect.TypeOf(&json.UnmarshalTypeError{}) {
+		return nil, err
 	}
 	return ret, nil
 }
-
-
 
 // Automatically generated
 // ./misc/gen --service Lists --call All --options
@@ -2343,7 +2325,6 @@ type ListsAllCall struct {
 	s    *Service
 	opt_ map[string]interface{}
 }
-
 
 func (r *ListsService) All() *ListsAllCall {
 	c := &ListsAllCall{s: r.s, opt_: make(map[string]interface{})}
@@ -2359,7 +2340,6 @@ func (c *ListsAllCall) ScreenName(screen_name string) *ListsAllCall {
 	c.opt_["screen_name"] = screen_name
 	return c
 }
-
 
 func (c *ListsAllCall) Do() (*ListList, os.Error) {
 	var body io.Reader = nil
@@ -2385,8 +2365,8 @@ func (c *ListsAllCall) Do() (*ListList, os.Error) {
 		return nil, err
 	}
 	ret := new(ListList)
-	if err := json.NewDecoder(res.Body).Decode(ret); err != nil {
-		return ret, err
+	if err := json.NewDecoder(res.Body).Decode(ret); err != nil && reflect.TypeOf(err) != reflect.TypeOf(&json.UnmarshalTypeError{}) {
+		return nil, err
 	}
 	return ret, nil
 }

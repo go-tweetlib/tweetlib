@@ -120,7 +120,7 @@ func (c *`+*service+*call+`Call) Do() (*`+*ret+`, os.Error) {
 		return nil, err
 	}
 	ret := new(`+*ret+`)
-	if err := json.NewDecoder(res.Body).Decode(ret); err != nil {
+	if err := json.NewDecoder(res.Body).Decode(ret); err != nil && reflect.TypeOf(err) != reflect.TypeOf(&json.UnmarshalTypeError{}){
 		return ret, err
 	}
 	return ret, nil
