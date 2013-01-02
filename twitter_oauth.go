@@ -9,17 +9,18 @@ package tweetlib
 import (
 	"bytes"
 	"crypto/hmac"
+	"crypto/sha1"
 	"encoding/base64"
+	"errors"
 	"fmt"
-	"http"
-	"os"
+	"io"
+	"io/ioutil"
+	"net/http"
+	"net/url"
 	"sort"
 	"strconv"
 	"strings"
 	"time"
-	"url"
-	"io"
-	"io/ioutil"
 )
 
 const (
@@ -48,8 +49,8 @@ func (tt *TempToken) AuthURL() string {
 }
 
 func (t *Transport) nonce() string {
-	s := time.Nanoseconds()
-	return strconv.Itoa64(s)
+	s := time.Now()
+	return strconv.FormatInt(s.Unix(), 10)
 }
 
 func (c *Config) callback() string {
@@ -81,12 +82,12 @@ func (t *Transport) transport() http.RoundTripper {
 	return http.DefaultTransport
 }
 
-func (t *Transport) RoundTrip(req *http.Request) (*http.Response, os.Error) {
+func (t *Transport) RoundTrip(req *http.Request) (*http.Response, error) {
 	if t.Config == nil {
-		return nil, os.NewError("no Config supplied")
+		return nil, errors.New("no Config supplied")
 	}
 	if t.Token == nil {
-		return nil, os.NewError("no Token supplied")
+		return nil, errors.New("no Token supplied")
 	}
 
 	// Refresh the Token if it has expired.
@@ -119,10 +120,10 @@ func (t *Transport) RoundTrip(req *http.Request) (*http.Response, os.Error) {
 //
 //    consumer_secret&oauth_token_secret
 //
-func (t *Transport) sign(req *http.Request) os.Error {
+func (t *Transport) sign(req *http.Request) error {
 	u, _ := url.ParseQuery(req.URL.RawQuery) //"status": {"testing..."}}
 	u.Set("oauth_signature_method", "HMAC-SHA1")
-	u.Set("oauth_timestamp", strconv.Itoa64(time.Seconds()))
+	u.Set("oauth_timestamp", strconv.FormatInt(time.Now().Unix(), 10))
 	u.Set("oauth_nonce", t.nonce())
 	u.Set("oauth_version", "1.0")
 	u.Set("oauth_consumer_key", t.ConsumerKey)
@@ -160,16 +161,16 @@ func (t *Transport) sign(req *http.Request) os.Error {
 
 func (t *Transport) createSignature(base string) string {
 	key := t.percentEncode((t.ConsumerSecret)) + "&" + t.percentEncode((t.OAuthSecret))
-	hash := hmac.NewSHA1([]byte(key))
+	hash := hmac.New(sha1.New, []byte(key))
 	hash.Write([]byte(base))
 	var sha1Hash bytes.Buffer
 	encoder := base64.NewEncoder(base64.StdEncoding, &sha1Hash)
-	encoder.Write(hash.Sum())
+	encoder.Write(hash.Sum(nil))
 	encoder.Close()
 	return sha1Hash.String()
 }
 
-func (t *Transport) AccessToken(tempToken *TempToken, oauthVerifier string) (*Token, os.Error) {
+func (t *Transport) AccessToken(tempToken *TempToken, oauthVerifier string) (*Token, error) {
 
 	u := &url.Values{"oauth_token": {tempToken.Token},
 		"oauth_verifier": {oauthVerifier}}
@@ -200,7 +201,7 @@ func (t *Transport) AccessToken(tempToken *TempToken, oauthVerifier string) (*To
 	return &Token{OAuthToken: t.OAuthToken, OAuthSecret: t.OAuthSecret}, nil
 }
 
-func (t *Transport) TempToken() (*TempToken, os.Error) {
+func (t *Transport) TempToken() (*TempToken, error) {
 	var body io.Reader
 	body = bytes.NewBuffer([]byte(""))
 	req, err := http.NewRequest("POST", tokenRequestURL+"?oauth_callback="+t.percentEncode(t.callback()), body)
@@ -223,9 +224,9 @@ func (t *Transport) TempToken() (*TempToken, os.Error) {
 		return nil, err
 	}
 
-	confirmed, _ := strconv.Atob(data.Get("oauth_callback_confirmed"))
+	confirmed, _ := strconv.ParseBool(data.Get("oauth_callback_confirmed"))
 	if !confirmed {
-		return nil, os.NewError("Rejected Callback")
+		return nil, errors.New("Rejected Callback")
 	}
 
 	return &TempToken{Token: data.Get("oauth_token"),

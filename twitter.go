@@ -7,15 +7,15 @@
 package tweetlib
 
 import (
+	"bytes"
+	"encoding/json"
+	"errors"
 	"fmt"
-	"http"
 	"io"
 	"io/ioutil"
-	"json"
-	"os"
-	"url"
+	"net/http"
+	"net/url"
 	"reflect"
-	"bytes"
 )
 
 const (
@@ -24,7 +24,7 @@ const (
 )
 
 var (
-	ErrOAuth = os.NewError("OAuth failure")
+	ErrOAuth = errors.New("OAuth failure")
 )
 
 type errorReply struct {
@@ -36,7 +36,7 @@ type errorsReply struct {
 	Errors string
 }
 
-func checkResponse(res *http.Response) os.Error {
+func checkResponse(res *http.Response) error {
 	if res.StatusCode >= 200 && res.StatusCode <= 299 {
 		return nil
 	}
@@ -46,12 +46,12 @@ func checkResponse(res *http.Response) os.Error {
 		jerr := new(errorReply)
 		err = json.Unmarshal(slurp, jerr)
 		if err == nil && jerr.Error != "" {
-			return os.NewError(jerr.Error)
+			return errors.New(jerr.Error)
 		}
 		errs := new(errorsReply)
 		err = json.Unmarshal(slurp, errs)
 		if err == nil && errs.Errors != "" {
-			return os.NewError(errs.Errors)
+			return errors.New(errs.Errors)
 		}
 
 	}
@@ -59,9 +59,9 @@ func checkResponse(res *http.Response) os.Error {
 		res.StatusCode, err)
 }
 
-func New(client *http.Client) (*Service, os.Error) {
+func New(client *http.Client) (*Service, error) {
 	if client == nil {
-		return nil, os.NewError("client is nil")
+		return nil, errors.New("client is nil")
 	}
 	s := &Service{client: client}
 	s.Timelines = &TimelinesService{s: s}
@@ -140,7 +140,7 @@ func (c *TimelinesListCall) Count(count int) *TimelinesListCall {
 	return c
 }
 
-func (c *TimelinesListCall) Do() (*TweetList, os.Error) {
+func (c *TimelinesListCall) Do() (*TweetList, error) {
 	var body io.Reader = nil
 	params := make(url.Values)
 	params.Set("alt", "json")
@@ -220,7 +220,7 @@ func (c *TimelinesHomeTimelineCall) ContributorDetails(contributor_details bool)
 	return c
 }
 
-func (c *TimelinesHomeTimelineCall) Do() (*TweetList, os.Error) {
+func (c *TimelinesHomeTimelineCall) Do() (*TweetList, error) {
 	var body io.Reader = nil
 	params := make(url.Values)
 	if v, ok := c.opt_["count"]; ok {
@@ -322,7 +322,7 @@ func (c *TimelinesMentionsCall) ContributorDetails(contributor_details bool) *Ti
 	return c
 }
 
-func (c *TimelinesMentionsCall) Do() (*TweetList, os.Error) {
+func (c *TimelinesMentionsCall) Do() (*TweetList, error) {
 	var body io.Reader = nil
 	params := make(url.Values)
 	if v, ok := c.opt_["count"]; ok {
@@ -390,7 +390,7 @@ func (c *TimelinesPublicTimelineCall) IncludeEntities(include_entities bool) *Ti
 	return c
 }
 
-func (c *TimelinesPublicTimelineCall) Do() (*TweetList, os.Error) {
+func (c *TimelinesPublicTimelineCall) Do() (*TweetList, error) {
 	var body io.Reader = nil
 	params := make(url.Values)
 	if v, ok := c.opt_["trim_user"]; ok {
@@ -471,7 +471,7 @@ func (c *TimelinesRetweetedByMeCall) ContributorDetails(contributor_details bool
 	return c
 }
 
-func (c *TimelinesRetweetedByMeCall) Do() (*TweetList, os.Error) {
+func (c *TimelinesRetweetedByMeCall) Do() (*TweetList, error) {
 	var body io.Reader = nil
 	params := make(url.Values)
 	if v, ok := c.opt_["count"]; ok {
@@ -573,7 +573,7 @@ func (c *TimelinesRetweetedToMeCall) ContributorDetails(contributor_details bool
 	return c
 }
 
-func (c *TimelinesRetweetedToMeCall) Do() (*TweetList, os.Error) {
+func (c *TimelinesRetweetedToMeCall) Do() (*TweetList, error) {
 	var body io.Reader = nil
 	params := make(url.Values)
 	if v, ok := c.opt_["count"]; ok {
@@ -661,7 +661,7 @@ func (c *TimelinesRetweetsOfMeCall) IncludeEntities(include_entities bool) *Time
 	return c
 }
 
-func (c *TimelinesRetweetsOfMeCall) Do() (*TweetList, os.Error) {
+func (c *TimelinesRetweetsOfMeCall) Do() (*TweetList, error) {
 	var body io.Reader = nil
 	params := make(url.Values)
 	if v, ok := c.opt_["count"]; ok {
@@ -742,7 +742,7 @@ func (c *TimelinesRetweetedToUserCall) IncludeEntities(include_entities bool) *T
 	return c
 }
 
-func (c *TimelinesRetweetedToUserCall) Do() (*TweetList, os.Error) {
+func (c *TimelinesRetweetedToUserCall) Do() (*TweetList, error) {
 	var body io.Reader = nil
 	params := make(url.Values)
 	params.Set("id", c.id)
@@ -824,7 +824,7 @@ func (c *TimelinesRetweetedByUserCall) IncludeEntities(include_entities bool) *T
 	return c
 }
 
-func (c *TimelinesRetweetedByUserCall) Do() (*TweetList, os.Error) {
+func (c *TimelinesRetweetedByUserCall) Do() (*TweetList, error) {
 	var body io.Reader = nil
 	params := make(url.Values)
 	params.Set("id", c.id)
@@ -886,7 +886,7 @@ func (c *TweetsRetweetedByCall) Page(page int) *TweetsRetweetedByCall {
 	return c
 }
 
-func (c *TweetsRetweetedByCall) Do() (*UserList, os.Error) {
+func (c *TweetsRetweetedByCall) Do() (*UserList, error) {
 	var body io.Reader = nil
 	params := make(url.Values)
 	params.Set("id", c.id)
@@ -936,7 +936,7 @@ func (c *TweetsRetweetedByIdsCall) Page(page int) *TweetsRetweetedByIdsCall {
 	return c
 }
 
-func (c *TweetsRetweetedByIdsCall) Do() (*[]string, os.Error) {
+func (c *TweetsRetweetedByIdsCall) Do() (*[]string, error) {
 	var body io.Reader = nil
 	params := make(url.Values)
 	params.Set("id", c.id)
@@ -995,7 +995,7 @@ func (c *TweetsRetweetsCall) IncludeEntities(include_entities bool) *TweetsRetwe
 	return c
 }
 
-func (c *TweetsRetweetsCall) Do() (*TweetList, os.Error) {
+func (c *TweetsRetweetsCall) Do() (*TweetList, error) {
 	var body io.Reader = nil
 	params := make(url.Values)
 	params.Set("id", c.id)
@@ -1051,7 +1051,7 @@ func (c *TweetsShowCall) IncludeEntities(include_entities bool) *TweetsShowCall 
 	return c
 }
 
-func (c *TweetsShowCall) Do() (*Tweet, os.Error) {
+func (c *TweetsShowCall) Do() (*Tweet, error) {
 	var body io.Reader = nil
 	params := make(url.Values)
 	params.Set("id", c.id)
@@ -1101,7 +1101,7 @@ func (c *TweetsDestroyCall) IncludeEntities(include_entities bool) *TweetsDestro
 	return c
 }
 
-func (c *TweetsDestroyCall) Do() (*Tweet, os.Error) {
+func (c *TweetsDestroyCall) Do() (*Tweet, error) {
 	var body io.Reader = nil
 	params := make(url.Values)
 	params.Set("id", c.id)
@@ -1155,7 +1155,7 @@ func (c *TweetsRetweetCall) IncludeEntities(include_entities bool) *TweetsRetwee
 	return c
 }
 
-func (c *TweetsRetweetCall) Do() (*Tweet, os.Error) {
+func (c *TweetsRetweetCall) Do() (*Tweet, error) {
 	var body io.Reader = nil
 	params := make(url.Values)
 	params.Set("id", c.id)
@@ -1200,7 +1200,7 @@ func (r *TweetsService) Update(status string) *TweetsUpdateCall {
 	return c
 }
 
-func (c *TweetsUpdateCall) Do() (*Tweet, os.Error) {
+func (c *TweetsUpdateCall) Do() (*Tweet, error) {
 	var body io.Reader = nil
 	params := make(url.Values)
 	params.Set("status", fmt.Sprintf("%v", c.status))
@@ -1237,7 +1237,7 @@ func (r *HelpService) Configuration() *HelpConfigurationCall {
 	return c
 }
 
-func (c *HelpConfigurationCall) Do() (*Configuration, os.Error) {
+func (c *HelpConfigurationCall) Do() (*Configuration, error) {
 	var body io.Reader = nil
 	urls := fmt.Sprintf("%s/%s.json", apiURL, "help/configuration")
 	fmt.Printf("URL: %s\n", urls)
@@ -1327,7 +1327,7 @@ func (c *SearchSearchCall) IncludeEntities(include_entities bool) *SearchSearchC
 	return c
 }
 
-func (c *SearchSearchCall) Do() (*TweetList, os.Error) {
+func (c *SearchSearchCall) Do() (*TweetList, error) {
 	var body io.Reader = nil
 	params := make(url.Values)
 	params.Set("q", c.q)
@@ -1394,7 +1394,6 @@ func (c *SearchSearchCall) Do() (*TweetList, os.Error) {
 
 // Direct Messages -----------------------------------------------------------
 
-
 type DMMessagesCall struct {
 	s    *Service
 	opt_ map[string]interface{}
@@ -1435,7 +1434,7 @@ func (c *DMMessagesCall) SkipStatus(skip_status bool) *DMMessagesCall {
 	return c
 }
 
-func (c *DMMessagesCall) Do() (*MessageList, os.Error) {
+func (c *DMMessagesCall) Do() (*MessageList, error) {
 	var body io.Reader = nil
 	params := make(url.Values)
 
@@ -1516,7 +1515,7 @@ func (c *DMMessagesSentCall) IncludeEntities(include_entities bool) *DMMessagesS
 	return c
 }
 
-func (c *DMMessagesSentCall) Do() (*MessageList, os.Error) {
+func (c *DMMessagesSentCall) Do() (*MessageList, error) {
 	var body io.Reader = nil
 	params := make(url.Values)
 
@@ -1580,7 +1579,7 @@ func (c *DMDestroyCall) IncludeEntities(include_entities bool) *DMDestroyCall {
 	return c
 }
 
-func (c *DMDestroyCall) Do() (*Message, os.Error) {
+func (c *DMDestroyCall) Do() (*Message, error) {
 	var body io.Reader = nil
 	params := make(url.Values)
 	params.Set("id", c.id)
@@ -1641,7 +1640,7 @@ func (c *DMNewCall) WrapLinks(wrap_links bool) *DMNewCall {
 	return c
 }
 
-func (c *DMNewCall) Do() (*Tweet, os.Error) {
+func (c *DMNewCall) Do() (*Tweet, error) {
 	var body io.Reader = nil
 	params := make(url.Values)
 
@@ -1692,7 +1691,7 @@ func (r *DMService) Show(id string) *DMShowCall {
 	return c
 }
 
-func (c *DMShowCall) Do() (*Message, os.Error) {
+func (c *DMShowCall) Do() (*Message, error) {
 	var body io.Reader = nil
 	params := make(url.Values)
 	params.Set("id", fmt.Sprintf("%v", c.id))
@@ -1716,7 +1715,6 @@ func (c *DMShowCall) Do() (*Message, os.Error) {
 }
 
 // Users calls ---------------------------------------------------------------
-
 
 type UsersLookUpCall struct {
 	s    *Service
@@ -1743,7 +1741,7 @@ func (c *UsersLookUpCall) IncludeEntities(include_entities bool) *UsersLookUpCal
 	return c
 }
 
-func (c *UsersLookUpCall) Do() (*UserList, os.Error) {
+func (c *UsersLookUpCall) Do() (*UserList, error) {
 	var body io.Reader = nil
 	params := make(url.Values)
 
@@ -1804,7 +1802,7 @@ func (c *UsersSearchCall) IncludeEntities(include_entities bool) *UsersSearchCal
 	return c
 }
 
-func (c *UsersSearchCall) Do() (*UserList, os.Error) {
+func (c *UsersSearchCall) Do() (*UserList, error) {
 	var body io.Reader = nil
 	params := make(url.Values)
 	params.Set("q", fmt.Sprintf("%v", c.q))
@@ -1864,7 +1862,7 @@ func (c *UsersShowCall) IncludeEntities(include_entities bool) *UsersShowCall {
 	return c
 }
 
-func (c *UsersShowCall) Do() (*User, os.Error) {
+func (c *UsersShowCall) Do() (*User, error) {
 	var body io.Reader = nil
 	params := make(url.Values)
 
@@ -1929,7 +1927,7 @@ func (c *UsersContributeesCall) SkipStatus(skip_status bool) *UsersContributeesC
 	return c
 }
 
-func (c *UsersContributeesCall) Do() (*UserList, os.Error) {
+func (c *UsersContributeesCall) Do() (*UserList, error) {
 	var body io.Reader = nil
 	params := make(url.Values)
 
@@ -1998,7 +1996,7 @@ func (c *UsersContributorsCall) SkipStatus(skip_status bool) *UsersContributorsC
 	return c
 }
 
-func (c *UsersContributorsCall) Do() (*Tweet, os.Error) {
+func (c *UsersContributorsCall) Do() (*Tweet, error) {
 	var body io.Reader = nil
 	params := make(url.Values)
 
@@ -2054,7 +2052,7 @@ func (c *UsersSuggestedCategoriesCall) Lang(lang string) *UsersSuggestedCategori
 	return c
 }
 
-func (c *UsersSuggestedCategoriesCall) Do() (*CategoryList, os.Error) {
+func (c *UsersSuggestedCategoriesCall) Do() (*CategoryList, error) {
 	var body io.Reader = nil
 	params := make(url.Values)
 
@@ -2102,7 +2100,7 @@ func (c *UsersSuggestedUsersCall) Lang(lang string) *UsersSuggestedUsersCall {
 	return c
 }
 
-func (c *UsersSuggestedUsersCall) Do() (*Category, os.Error) {
+func (c *UsersSuggestedUsersCall) Do() (*Category, error) {
 	var body io.Reader = nil
 	params := make(url.Values)
 	params.Set("slug", fmt.Sprintf("%v", c.slug))
@@ -2176,7 +2174,7 @@ func (c *AccountUpdateProfileCall) SkipStatus(skip_status bool) *AccountUpdatePr
 	return c
 }
 
-func (c *AccountUpdateProfileCall) Do() (*User, os.Error) {
+func (c *AccountUpdateProfileCall) Do() (*User, error) {
 	var body io.Reader = nil
 	params := make(url.Values)
 
@@ -2239,7 +2237,7 @@ func (r *AccountService) RateLimitStatus() *AccountRateLimitStatusCall {
 	return c
 }
 
-func (c *AccountRateLimitStatusCall) Do() (*LimitStatus, os.Error) {
+func (c *AccountRateLimitStatusCall) Do() (*LimitStatus, error) {
 	var body io.Reader = nil
 	params := make(url.Values)
 
@@ -2286,7 +2284,7 @@ func (c *AccountVerifyCredentialsCall) SkipStatus(skip_status bool) *AccountVeri
 	return c
 }
 
-func (c *AccountVerifyCredentialsCall) Do() (*User, os.Error) {
+func (c *AccountVerifyCredentialsCall) Do() (*User, error) {
 	var body io.Reader = nil
 	params := make(url.Values)
 
@@ -2341,7 +2339,7 @@ func (c *ListsAllCall) ScreenName(screen_name string) *ListsAllCall {
 	return c
 }
 
-func (c *ListsAllCall) Do() (*ListList, os.Error) {
+func (c *ListsAllCall) Do() (*ListList, error) {
 	var body io.Reader = nil
 	params := make(url.Values)
 
