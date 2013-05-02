@@ -16,6 +16,7 @@ import (
 	"net/http"
 	"net/url"
 	"reflect"
+	"mime/multipart"
 )
 
 const (
@@ -1211,6 +1212,52 @@ func (c *TweetsUpdateCall) Do() (*Tweet, error) {
 	fmt.Printf("URL: %s\n", urls)
 	req, _ := http.NewRequest("POST", urls, body)
 	req.Header.Set("Content-Type", ctype)
+	res, err := c.s.client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	if err := checkResponse(res); err != nil {
+		return nil, err
+	}
+	ret := new(Tweet)
+	if err := json.NewDecoder(res.Body).Decode(ret); err != nil && reflect.TypeOf(err) != reflect.TypeOf(&json.UnmarshalTypeError{}) {
+		return nil, err
+	}
+	return ret, nil
+}
+
+type TweetsUpdateWithMediaCall struct {
+	s         *Service
+	status    string
+	mediaName string
+	mediaData []byte
+	opt_      map[string]interface{}
+}
+
+func (r *TweetsService) UpdateWithMedia(status, mediaName string, mediaData []byte) *TweetsUpdateWithMediaCall {
+	c := &TweetsUpdateWithMediaCall{s: r.s, opt_: make(map[string]interface{})}
+	c.status = status
+	c.mediaName = mediaName
+	c.mediaData = mediaData
+	return c
+}
+
+func (c *TweetsUpdateWithMediaCall) Do() (*Tweet, error) {
+
+	body := bytes.NewBufferString("")
+	mp := multipart.NewWriter(body)
+	mp.WriteField("status", c.status)
+	writer, err := mp.CreateFormFile("media[]", c.mediaName)
+	if err != nil {
+		return nil, err
+	}
+	writer.Write(c.mediaData)
+	header := fmt.Sprintf("multipart/form-data;boundary=%v", mp.Boundary())
+	mp.Close()
+
+	urls := fmt.Sprintf("https://upload.twitter.com/1/%s.json", "statuses/update_with_media")
+	req, _ := http.NewRequest("POST", urls, body)
+	req.Header.Set("Content-Type", header)
 	res, err := c.s.client.Do(req)
 	if err != nil {
 		return nil, err

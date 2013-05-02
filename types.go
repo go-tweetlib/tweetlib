@@ -5,9 +5,10 @@
 // license that can be found in the LICENSE file.
 package tweetlib
 
+// Tweet represents a single tweet
 type Tweet struct {
 	Contributors        string `json:"contributors"`
-	User                *User  `json:"user"`
+	User                *User  `json:"user"` // Tweet author
 	Truncated           bool   `json:"truncated"`
 	Text                string `json:"text"`
 	InReplyToScreenName string `json:"in_reply_to_screen_name"`
@@ -18,11 +19,11 @@ type Tweet struct {
 			Indices     []int64 `json:"indices"`
 			Url         string  `json:"url"`
 			ExpandedUrl string  `json:"expanded_url"`
-		}        `json:"urls"`
+		} `json:"urls"`
 		Hashtags []struct {
 			Text    string  `json:"text"`
 			Indices []int64 `json:"indices"`
-		}            `json:"hashtags"`
+		} `json:"hashtags"`
 		UserMentions []struct {
 			ScreenName string  `json:"screen_name"`
 			Name       string  `json:"name"`
@@ -30,7 +31,7 @@ type Tweet struct {
 			IdStr      string  `json:"id_str"`
 			Id         int64   `json:"id"`
 		} `json:"user_mentions"`
-	}                           `json:"entities"`
+	} `json:"entities"`
 	Geo                  string `json:"geo"`
 	InReplyToUserId      int64  `json:"in_reply_to_user_id"`
 	IdStr                string `json:"id_str"`
