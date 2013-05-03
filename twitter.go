@@ -74,13 +74,6 @@ func New(transport *Transport) (*Client, error) {
 		return nil, errors.New("client is nil")
 	}
 	c := &Client{client: transport.Client()}
-	c.Timelines = &TimelinesService{c: c}
-	c.Tweets = &TweetsService{c: c}
-	c.Help = &HelpService{c: c}
-	c.DM = &DMService{c: c}
-	c.Users = &UsersService{c: c}
-	c.Account = &AccountService{c: c}
-	c.Lists = &ListsService{c: c}
 	return c, nil
 }
 
@@ -88,33 +81,6 @@ func New(transport *Transport) (*Client, error) {
 // API services
 type Client struct {
 	client *http.Client
-
-	// Timelines includes funcionality to work with collections of Tweets
-	Timelines *TimelinesService
-
-	// Tweets: facilities to deal with the atomic building blocks of Twitter,
-	// 140-character status updates with additional associated metadata.
-	Tweets *TweetsService
-
-	// Methods to assist in working & debugging with the Twitter API.
-	Help *HelpService
-
-	// Facilities for finding relevant Tweets based on queries performed
-	// by the users.
-	Search *SearchService
-
-	// Direct Messages are short, non-public messages sent between two users
-	DM *DMService
-
-	// Users are at the center of everything Twitter: they follow, they favorite,
-	// and tweet & retweet.
-	Users *UsersService
-
-	// Account deals with account and profile functionality
-	Account *AccountService
-
-	// Lists provides functions to manage user lists
-	Lists *ListsService
 }
 
 // perform a GET request to the appropriate endpoint and using the provided
@@ -170,117 +136,113 @@ type TimelinesService struct {
 // THis method can only return up to 800 tweets (via the "count" optional
 // parameter.
 // See https://dev.twitter.com/docs/api/1.1/get/statuses/mentions_timeline
-func (ts *TimelinesService) Mentions(opts *Optionals) (tweets *TweetList, err error) {
+func (c *Client) Mentions(opts *Optionals) (tweets *TweetList, err error) {
 	if opts == nil {
 		opts = NewOptionals()
 	}
 	tweets = &TweetList{}
-	err = ts.c.get("statuses/mentions_timeline", &opts.Values, tweets)
+	err = c.get("statuses/mentions_timeline", &opts.Values, tweets)
 	return
 }
 
 // Returns a collection of the most recent Tweets posted by the user indicated
 // by the screen_name.
 // See https://dev.twitter.com/docs/api/1.1/get/statuses/user_timeline
-func (ts *TimelinesService) UserTimeline(screenname string, opts *Optionals) (tweets *TweetList, err error) {
+func (c *Client) UserTimeline(screenname string, opts *Optionals) (tweets *TweetList, err error) {
 	if opts == nil {
 		opts = NewOptionals()
 	}
 	opts.Add("screen_name", screenname)
 	tweets = new(TweetList)
-	err = ts.c.get("statuses/user_timeline", &opts.Values, tweets)
+	err = c.get("statuses/user_timeline", &opts.Values, tweets)
 	return
 }
 
 // Returns a collection of the most recent Tweets and retweets posted by
 // the authenticating user and the users they follow.
 // See https://dev.twitter.com/docs/api/1.1/get/statuses/home_timeline
-func (ts *TimelinesService) HomeTimeline(opts *Optionals) (tweets *TweetList, err error) {
+func (c *Client) HomeTimeline(opts *Optionals) (tweets *TweetList, err error) {
 	if opts == nil {
 		opts = NewOptionals()
 	}
 	tweets = new(TweetList)
-	err = ts.c.get("statuses/home_timeline", &opts.Values, tweets)
+	err = c.get("statuses/home_timeline", &opts.Values, tweets)
 	return
 }
 
 // Returns a collection of the  most recent tweets authored by the
 // authenticating user that have been retweeted by others.
 // See https://dev.twitter.com/docs/api/1.1/get/statuses/retweets_of_me
-func (ts *TimelinesService) RetweetsOfMe(opts *Optionals) (tweets *TweetList, err error) {
+func (c *Client) RetweetsOfMe(opts *Optionals) (tweets *TweetList, err error) {
 	if opts == nil {
 		opts = NewOptionals()
 	}
 	tweets = new(TweetList)
-	err = ts.c.get("statuses/retweets_of_me", &opts.Values, tweets)
+	err = c.get("statuses/retweets_of_me", &opts.Values, tweets)
 	return
-}
-
-type TweetsService struct {
-	c *Client
 }
 
 // Update: posts a status update to Twitter
 // See https://dev.twitter.com/docs/api/1.1/post/statuses/update
-func (ts *TweetsService) Update(status string, opts *Optionals) (tweet *Tweet, err error) {
+func (c *Client) UpdateStatus(status string, opts *Optionals) (tweet *Tweet, err error) {
 	if opts == nil {
 		opts = NewOptionals()
 	}
 	opts.Add("status", status)
 	tweet = &Tweet{}
-	err = ts.c.post("statuses/update", &opts.Values, tweet)
+	err = c.post("statuses/update", &opts.Values, tweet)
 	return tweet, err
 }
 
 // Returns up to 100 of the first retweets of a given tweet Id
-func (ts *TweetsService) Retweets(id int64, opts *Optionals) (tweets *TweetList, err error) {
+func (c *Client) Retweets(id int64, opts *Optionals) (tweets *TweetList, err error) {
 	if opts == nil {
 		opts = NewOptionals()
 	}
 	tweets = &TweetList{}
-	err = ts.c.get(fmt.Sprintf("statuses/retweets/%d", id), &opts.Values, tweets)
+	err = c.get(fmt.Sprintf("statuses/retweets/%d", id), &opts.Values, tweets)
 	return
 }
 
 // Returns a single Tweet, specified by the id parameter.
 // The Tweet's author will also be embedded within the tweet.
-func (ts *TweetsService) Show(id int64, opts *Optionals) (tweet *Tweet, err error) {
+func (c *Client) GetStatus(id int64, opts *Optionals) (tweet *Tweet, err error) {
 	if opts == nil {
 		opts = NewOptionals()
 	}
 	opts.Add("id", id)
 	tweet = &Tweet{}
-	err = ts.c.get("statuses/show", &opts.Values, tweet)
+	err = c.get("statuses/show", &opts.Values, tweet)
 	return
 }
 
 // Destroys the status specified by the required ID parameter.
 // The authenticating user must be the author of the specified
 // status. returns the destroyed tweet if successful
-func (ts *TweetsService) Destroy(id int64, opts *Optionals) (tweet *Tweet, err error) {
+func (c *Client) DestroyStatus(id int64, opts *Optionals) (tweet *Tweet, err error) {
 	if opts == nil {
 		opts = NewOptionals()
 	}
 	opts.Add("id", id)
 	tweet = &Tweet{}
-	err = ts.c.post(fmt.Sprintf("statuses/destroy/%d", id), &opts.Values, tweet)
+	err = c.post(fmt.Sprintf("statuses/destroy/%d", id), &opts.Values, tweet)
 	return tweet, err
 }
 
 // Retweets a tweet. Returns the original tweet with retweet details embedded.
-func (ts *TweetsService) Retweet(id int64, opts *Optionals) (tweet *Tweet, err error) {
+func (c *Client) Retweet(id int64, opts *Optionals) (tweet *Tweet, err error) {
 	if opts == nil {
 		opts = NewOptionals()
 	}
 	opts.Add("id", id)
 	tweet = &Tweet{}
-	err = ts.c.post(fmt.Sprintf("statuses/retweet/%d", id), &opts.Values, tweet)
+	err = c.post(fmt.Sprintf("statuses/retweet/%d", id), &opts.Values, tweet)
 	return tweet, err
 }
 
 // Updates the authenticating user's current status and attaches media for
 // upload. In other words, it creates a Tweet with a picture attached.
-func (ts *TweetsService) UploadWithMedia(status string, media *TweetMedia, opts *Optionals) (tweet *Tweet, err error) {
+func (c *Client) UpdateStatusWithMedia(status string, media *TweetMedia, opts *Optionals) (tweet *Tweet, err error) {
 	if opts == nil {
 		opts = NewOptionals()
 	}
@@ -302,7 +264,7 @@ func (ts *TweetsService) UploadWithMedia(status string, media *TweetMedia, opts 
 	endpoint := fmt.Sprintf("%s/statuses/update_with_media.json?%s", apiURL, opts.Values.Encode())
 	req, _ := http.NewRequest("POST", endpoint, body)
 	req.Header.Set("Content-Type", header)
-	res, err := ts.c.client.Do(req)
+	res, err := c.client.Do(req)
 	if err != nil {
 		return
 	}
@@ -316,69 +278,57 @@ func (ts *TweetsService) UploadWithMedia(status string, media *TweetMedia, opts 
 
 }
 
-type HelpService struct {
-	c *Client
-}
-
 // Returns the current configuration used by Twitter including twitter.com
 // slugs which are not usernames, maximum photo resolutions, and t.co URL
 // lengths.
 // See https://dev.twitter.com/docs/api/1.1/get/help/configuration
-func (ts *HelpService) Configuration() (configuration *Configuration, err error) {
+func (c *Client) Configuration() (configuration *Configuration, err error) {
 	configuration = &Configuration{}
-	err = ts.c.get("help/configuration", nil, configuration)
+	err = c.get("help/configuration", nil, configuration)
 	return
 }
 
 // Returns Twitter's Privacy Policy
 // https://dev.twitter.com/docs/api/1.1/get/help/privacy
-func (ts *HelpService) PrivacyPolicy() (privacyPolicy string, err error) {
+func (c *Client) PrivacyPolicy() (privacyPolicy string, err error) {
 	type pp struct {
 		Text string `json:"privacy"`
 	}
 	ret := &pp{}
-	err = ts.c.get("help/privacy", nil, ret)
+	err = c.get("help/privacy", nil, ret)
 	privacyPolicy = ret.Text
 	return
 }
 
 // Returns Twitter's terms of service
 // https://dev.twitter.com/docs/api/1.1/get/help/tos
-func (ts *HelpService) TermsOfService() (string, error) {
+func (c *Client) Tos() (string, error) {
 	type tos struct {
 		Text string `json:"tos"`
 	}
 	ret := &tos{}
-	err := ts.c.get("help/tos", nil, ret)
+	err := c.get("help/tos", nil, ret)
 	return ret.Text, err
 }
 
 // Returns Twitter's terms of service
 // https://dev.twitter.com/docs/api/1.1/get/help/tos
-func (ts *HelpService) Limits() (limits *Limits, err error) {
+func (c *Client) Limits() (limits *Limits, err error) {
 	limits = &Limits{}
-	err = ts.c.get("application/rate_limit_status", nil, limits)
+	err = c.get("application/rate_limit_status", nil, limits)
 	return
-}
-
-type SearchService struct {
-	c *Client
-}
-
-type DMService struct {
-	c *Client
 }
 
 // Returns the 20 most recent direct messages sent to the authenticating user.
 // Includes detailed information about the sender and recipient user. You can
-// request up to 200 direct messages per call, up to a maximum of 800 incoming DMs 
+// request up to 200 direct messages per call, up to a maximum of 800 incoming DMs
 // See https://dev.twitter.com/docs/api/1.1/get/direct_messages
-func (ts *DMService) List(opts *Optionals) (messages *MessageList, err error) {
+func (c *Client) DMList(opts *Optionals) (messages *MessageList, err error) {
 	if opts == nil {
 		opts = NewOptionals()
 	}
 	messages = &MessageList{}
-	err = ts.c.get("direct_messages", &opts.Values, messages)
+	err = c.get("direct_messages", &opts.Values, messages)
 	return
 }
 
@@ -386,62 +336,73 @@ func (ts *DMService) List(opts *Optionals) (messages *MessageList, err error) {
 // Includes detailed information about the sender and recipient user. You can
 // request up to 200 direct messages per call, up to a maximum of 800 outgoing DMs.
 // See https://dev.twitter.com/docs/api/1.1/get/direct_messages/sent
-func (ts *DMService) ListSent(opts *Optionals) (messages *MessageList, err error) {
+func (c *Client) DMSent(opts *Optionals) (messages *MessageList, err error) {
 	if opts == nil {
 		opts = NewOptionals()
 	}
 	messages = &MessageList{}
-	err = ts.c.get("direct_messages/sent", &opts.Values, messages)
+	err = c.get("direct_messages/sent", &opts.Values, messages)
 	return
 }
 
 // Returns a single direct message, specified by an id parameter.
 // See https://dev.twitter.com/docs/api/1.1/get/direct_messages/show
-func (ts *DMService) Get(id int64, opts *Optionals) (message *Message, err error) {
+func (c *Client) DM(id int64, opts *Optionals) (message *Message, err error) {
 	if opts == nil {
 		opts = NewOptionals()
 	}
 	opts.Add("id", id)
 	message = &Message{}
-	err = ts.c.get("direct_messages/show", &opts.Values, message)
+	err = c.get("direct_messages/show", &opts.Values, message)
 	return
 }
 
 // Destroys the direct message specified in the required ID parameter.
 // The authenticating user must be the recipient of the specified direct
-// message. 
+// message.
 // See https://dev.twitter.com/docs/api/1.1/post/direct_messages/destroy
-func (ts *DMService) Destroy(id int64, opts *Optionals) (message *Message, err error) {
+func (c *Client) DMDestroy(id int64, opts *Optionals) (message *Message, err error) {
 	if opts == nil {
 		opts = NewOptionals()
 	}
 	opts.Add("id", id)
 	message = &Message{}
-	err = ts.c.post("direct_messages/show", &opts.Values, message)
+	err = c.post("direct_messages/show", &opts.Values, message)
 	return
 }
 
 // Sends a new direct message to the specified user from the authenticating user.
 // See https://dev.twitter.com/docs/api/1.1/post/direct_messages/new
-func (ts *DMService) Send(screenname, text string, opts *Optionals) (message *Message, err error) {
+func (c *Client) DMSend(screenname, text string, opts *Optionals) (message *Message, err error) {
 	if opts == nil {
 		opts = NewOptionals()
 	}
 	opts.Add("screen_name", screenname)
 	opts.Add("text", text)
 	message = &Message{}
-	err = ts.c.post("direct_messages/new", &opts.Values, message)
+	err = c.post("direct_messages/new", &opts.Values, message)
 	return
 }
 
-type UsersService struct {
-	c *Client
+// Provides a simple, relevance-based search interface to public user accounts
+// on Twitter. Try querying by topical interest, full name, company name,
+// location, or other criteria. Exact match searches are not supported.
+// See https://dev.twitter.com/docs/api/1.1/get/users/search
+func (c *Client) Search(q string, opts *Optionals) (tweets *TweetList, err error) {
+	if opts == nil {
+		opts = NewOptionals()
+	}
+	opts.Add("q", q)
+	tweets = &TweetList{}
+	err = c.get("users/search", &opts.Values, tweets)
+	return
 }
 
-type AccountService struct {
-	c *Client
-}
-
-type ListsService struct {
-	c *Client
+// Returns settings (including current trend, geo and sleep time information)
+// for the authenticating user
+// See https://dev.twitter.com/docs/api/1.1/get/account/settings
+func (c *Client) AccountSettings() (settings *AccountSettings, err error) {
+	settings = &AccountSettings{}
+	err = c.get("account/settings", nil, settings)
+	return
 }

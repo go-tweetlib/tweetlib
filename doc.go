@@ -29,7 +29,7 @@ Usage example:
   }
 
   client := tweetlib.New(tr.Client())
-  client.Tweets.Update("Hello, world")
+  client.UpdateStatus("Hello, world")
 
 Authentication
 
@@ -122,7 +122,7 @@ with getting an API Client object:
 Once you have the client, you can make API calls easily. For example,
 to post a tweet as the authenticating user
 
-   tweet, err := client.Tweets.Update("Hello, world", nil)
+   tweet, err := client.UpdateStatus("Hello, world", nil)
 
 The vast majority of API calls to the Twitter REST API takes one or two
 required parameters along with any number of optional ones. For example,
@@ -134,7 +134,7 @@ To provide optional parameters, use tweetlib.Optionals
     opts := tweetlib.NewOptionals()
     opts.Add("lat", 37.7821120598956)
     opts.Add("long", -122.400612831116)
-    tweet, err := client.Tweets.Update("Hello, world", opts)
+    tweet, err := client.UpdateStatus("Hello, world", opts)
 
 */
 package tweetlib
