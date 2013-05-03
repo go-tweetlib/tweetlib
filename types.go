@@ -5,6 +5,11 @@
 // license that can be found in the LICENSE file.
 package tweetlib
 
+import (
+	"fmt"
+	"net/url"
+)
+
 type Tweet struct {
 	Contributors        string `json:"contributors"`
 	User                *User  `json:"user"`
@@ -18,11 +23,11 @@ type Tweet struct {
 			Indices     []int64 `json:"indices"`
 			Url         string  `json:"url"`
 			ExpandedUrl string  `json:"expanded_url"`
-		}        `json:"urls"`
+		} `json:"urls"`
 		Hashtags []struct {
 			Text    string  `json:"text"`
 			Indices []int64 `json:"indices"`
-		}            `json:"hashtags"`
+		} `json:"hashtags"`
 		UserMentions []struct {
 			ScreenName string  `json:"screen_name"`
 			Name       string  `json:"name"`
@@ -30,7 +35,7 @@ type Tweet struct {
 			IdStr      string  `json:"id_str"`
 			Id         int64   `json:"id"`
 		} `json:"user_mentions"`
-	}                           `json:"entities"`
+	} `json:"entities"`
 	Geo                  string `json:"geo"`
 	InReplyToUserId      int64  `json:"in_reply_to_user_id"`
 	IdStr                string `json:"id_str"`
@@ -188,3 +193,34 @@ type TrendLocation struct {
 }
 
 type TrendLocationList []TrendLocation
+
+// A media attached to a tweet. In practice, this represents
+// an image file.
+type TweetMedia struct {
+	Filename string // Name for the file (e.g. image.png)
+	Data     []byte // Raw file data
+}
+
+// Optionals: used to provide optional arguments to
+// API calls
+//
+// Usage:
+//
+//   opts := NewOptionals()
+//   opts.Add("count", 10)
+//   opts.Add("lat", -37.102013)
+//   opts.Add("user_id", "twitteruser")
+type Optionals struct {
+	Values url.Values
+}
+
+// NewOptionals returns a new instance of Optionals
+func NewOptionals() *Optionals {
+	return &Optionals{make(url.Values)}
+}
+
+// Add: adds a new optional parameter to be used in
+// an API request. The value needs to be "stringified"
+func (o *Optionals) Add(name string, value interface{}) {
+	o.Values.Add(name, fmt.Sprintf("%v", value))
+}
