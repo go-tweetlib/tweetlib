@@ -369,6 +369,71 @@ type DMService struct {
 	c *Client
 }
 
+// Returns the 20 most recent direct messages sent to the authenticating user.
+// Includes detailed information about the sender and recipient user. You can
+// request up to 200 direct messages per call, up to a maximum of 800 incoming DMs 
+// See https://dev.twitter.com/docs/api/1.1/get/direct_messages
+func (ts *DMService) List(opts *Optionals) (messages *MessageList, err error) {
+	if opts == nil {
+		opts = NewOptionals()
+	}
+	messages = &MessageList{}
+	err = ts.c.get("direct_messages", &opts.Values, messages)
+	return
+}
+
+// Returns the 20 most recent direct messages sent by the authenticating user.
+// Includes detailed information about the sender and recipient user. You can
+// request up to 200 direct messages per call, up to a maximum of 800 outgoing DMs.
+// See https://dev.twitter.com/docs/api/1.1/get/direct_messages/sent
+func (ts *DMService) ListSent(opts *Optionals) (messages *MessageList, err error) {
+	if opts == nil {
+		opts = NewOptionals()
+	}
+	messages = &MessageList{}
+	err = ts.c.get("direct_messages/sent", &opts.Values, messages)
+	return
+}
+
+// Returns a single direct message, specified by an id parameter.
+// See https://dev.twitter.com/docs/api/1.1/get/direct_messages/show
+func (ts *DMService) Get(id int64, opts *Optionals) (message *Message, err error) {
+	if opts == nil {
+		opts = NewOptionals()
+	}
+	opts.Add("id", id)
+	message = &Message{}
+	err = ts.c.get("direct_messages/show", &opts.Values, message)
+	return
+}
+
+// Destroys the direct message specified in the required ID parameter.
+// The authenticating user must be the recipient of the specified direct
+// message. 
+// See https://dev.twitter.com/docs/api/1.1/post/direct_messages/destroy
+func (ts *DMService) Destroy(id int64, opts *Optionals) (message *Message, err error) {
+	if opts == nil {
+		opts = NewOptionals()
+	}
+	opts.Add("id", id)
+	message = &Message{}
+	err = ts.c.post("direct_messages/show", &opts.Values, message)
+	return
+}
+
+// Sends a new direct message to the specified user from the authenticating user.
+// See https://dev.twitter.com/docs/api/1.1/post/direct_messages/new
+func (ts *DMService) Send(screenname, text string, opts *Optionals) (message *Message, err error) {
+	if opts == nil {
+		opts = NewOptionals()
+	}
+	opts.Add("screen_name", screenname)
+	opts.Add("text", text)
+	message = &Message{}
+	err = ts.c.post("direct_messages/new", &opts.Values, message)
+	return
+}
+
 type UsersService struct {
 	c *Client
 }
