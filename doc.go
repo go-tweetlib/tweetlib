@@ -58,12 +58,12 @@ step and, for now, an empty Token
     }
 
 2a. (Optional) tweetlib.Transport uses the http package to talk to Twitter
-by default. This may not be possible or desirable. For example, if the 
+by default. This may not be possible or desirable. For example, if the
 Client is to be used in a Google Appengine app, it becomes necessary to
 change the underlying transport to be used. E.g.:
 
 	tr.Transport = &urlfetch.Transport{Context: c}
-    
+
 3. Not it's possible to request the temporary token. This will start the
 little Oauth dance with Twitter
 

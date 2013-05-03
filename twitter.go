@@ -120,6 +120,9 @@ type Client struct {
 // perform a GET request to the appropriate endpoint and using the provided
 // parameters. Will try to unmarshall the response to resp.
 func (c *Client) get(endpoint string, params *url.Values, resp interface{}) (err error) {
+	if params == nil {
+		params = &url.Values{}
+	}
 	endpoint = fmt.Sprintf("%s/%s.json?%s", apiURL, endpoint, params.Encode())
 	fmt.Println(endpoint)
 	req, _ := http.NewRequest("GET", endpoint, nil)
@@ -130,6 +133,8 @@ func (c *Client) get(endpoint string, params *url.Values, resp interface{}) (err
 	if err = checkResponse(res); err != nil {
 		return err
 	}
+	//a,_ := ioutil.ReadAll(res.Body)
+	//fmt.Printf("%s\n", a)
 	if err = json.NewDecoder(res.Body).Decode(resp); err != nil && reflect.TypeOf(err) != reflect.TypeOf(&json.UnmarshalTypeError{}) {
 		return err
 	}
@@ -299,7 +304,7 @@ func (ts *TweetsService) UploadWithMedia(status string, media *TweetMedia, opts 
 	req.Header.Set("Content-Type", header)
 	res, err := ts.c.client.Do(req)
 	if err != nil {
-		return 
+		return
 	}
 	if err = checkResponse(res); err != nil {
 		return
@@ -313,6 +318,47 @@ func (ts *TweetsService) UploadWithMedia(status string, media *TweetMedia, opts 
 
 type HelpService struct {
 	c *Client
+}
+
+// Returns the current configuration used by Twitter including twitter.com
+// slugs which are not usernames, maximum photo resolutions, and t.co URL
+// lengths.
+// See https://dev.twitter.com/docs/api/1.1/get/help/configuration
+func (ts *HelpService) Configuration() (configuration *Configuration, err error) {
+	configuration = &Configuration{}
+	err = ts.c.get("help/configuration", nil, configuration)
+	return
+}
+
+// Returns Twitter's Privacy Policy
+// https://dev.twitter.com/docs/api/1.1/get/help/privacy
+func (ts *HelpService) PrivacyPolicy() (privacyPolicy string, err error) {
+	type pp struct {
+		Text string `json:"privacy"`
+	}
+	ret := &pp{}
+	err = ts.c.get("help/privacy", nil, ret)
+	privacyPolicy = ret.Text
+	return
+}
+
+// Returns Twitter's terms of service
+// https://dev.twitter.com/docs/api/1.1/get/help/tos
+func (ts *HelpService) TermsOfService() (string, error) {
+	type tos struct {
+		Text string `json:"tos"`
+	}
+	ret := &tos{}
+	err := ts.c.get("help/tos", nil, ret)
+	return ret.Text, err
+}
+
+// Returns Twitter's terms of service
+// https://dev.twitter.com/docs/api/1.1/get/help/tos
+func (ts *HelpService) Limits() (limits *Limits, err error) {
+	limits = &Limits{}
+	err = ts.c.get("application/rate_limit_status", nil, limits)
+	return
 }
 
 type SearchService struct {

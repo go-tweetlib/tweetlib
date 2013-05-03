@@ -194,6 +194,36 @@ type TrendLocation struct {
 
 type TrendLocationList []TrendLocation
 
+// Represents Twitter's current resource limits
+// See https://dev.twitter.com/docs/rate-limiting/1.1/limits
+// Usage:
+//	limits, _ := c.Help.Limits()
+//	fmt.Printf("App has %d user_timeline calls remaining\n",
+//		limits["statuses"]["/statuses/user_timeline"].Remaining)
+type Limits struct {
+	// For which context these limits are
+	// For tweetlib this will always be the user token
+	Context struct {
+		AccessToken string `json:"access_token"`
+	} `json:"rate_limit_context"`
+
+	// Resrouce families are "accounts", "help", etc
+	ResourceFamilies map[string]map[string]struct {
+		// How many calls remaining for this resource
+		Remaining int   `json:"remaining"`
+		// When the limit will reset (epoch time)
+		Reset     int64 `json:"reset"`
+		// Total number of calls allowed
+		Limit     int   `json:"limit"`
+	} `json:"resources"`
+}
+
+type LimitResourceFamily map[string]struct {
+	Remaining int   `json:"remaining"`
+	Reset     int64 `json:"reset"`
+	Limit     int   `json:"limit"`
+}
+
 // A media attached to a tweet. In practice, this represents
 // an image file.
 type TweetMedia struct {
