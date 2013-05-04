@@ -164,6 +164,7 @@ func (c *Client) Call(method, endpoint string, opts *Optionals, resp interface{}
 	if err != nil {
 		return
 	}
+	fmt.Printf("Response: %s\n", rawJSON)
 	if resp != nil {
 		if err = json.Unmarshal(rawJSON, resp); err != nil &&
 			reflect.TypeOf(err) != reflect.TypeOf(&json.UnmarshalTypeError{}) {
@@ -177,7 +178,7 @@ func (c *Client) Call(method, endpoint string, opts *Optionals, resp interface{}
 // on Twitter. Try querying by topical interest, full name, company name,
 // location, or other criteria. Exact match searches are not supported.
 // See https://dev.twitter.com/docs/api/1.1/get/users/search
-func (c *Client) Search(q string, opts *Optionals) (tweets *TweetList, err error) {
+func (c *Client) USearch(q string, opts *Optionals) (tweets *TweetList, err error) {
 	if opts == nil {
 		opts = NewOptionals()
 	}

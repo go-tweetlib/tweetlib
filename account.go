@@ -91,3 +91,31 @@ func (ag *AccountGroup) UpdateProfileBackgroundImage(image []byte, opts *Optiona
 	return
 
 }
+
+// Sets one or more hex values that control the color scheme of the
+// authenticating user's profile page on twitter.com. Each parameter's value
+// must be a valid hexidecimal value, and may be either three or six characters
+// (ex: #fff or #ffffff).
+func (ag *AccountGroup) UpdateProfileColors(opts *Optionals) (user *User, err error) {
+	if opts == nil {
+		opts = NewOptionals()
+	}
+	user = &User{}
+	err = ag.Call("POST", "account/update_profile_colors", opts, user)
+	return
+}
+
+// Updates the authenticating user's profile image. The image parameter should
+// be the raw data from the image file, not a path or URL
+// See https://dev.twitter.com/docs/api/1.1/post/account/update_profile_image
+func (ag *AccountGroup) UpdateProfileImage(image []byte, opts *Optionals) (user *User, err error) {
+	if opts == nil {
+		opts = NewOptionals()
+	}
+	opts.Add("image", base64.StdEncoding.EncodeToString(image))
+	user = &User{}
+	err = ag.Call("POST", "account/update_profile_image", opts, user)
+	return
+}
+
+
