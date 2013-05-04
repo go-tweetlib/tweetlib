@@ -10,6 +10,7 @@ import (
 	"encoding/base64"
 )
 
+// Groups account-related functions
 type AccountGroup struct {
 	*Client
 }
@@ -17,7 +18,7 @@ type AccountGroup struct {
 // Returns settings (including current trend, geo and sleep time information)
 // for the authenticating user
 // See https://dev.twitter.com/docs/api/1.1/get/account/settings
-func (ag *AccountGroup) AccountSettings() (settings *AccountSettings, err error) {
+func (ag *AccountGroup) Settings() (settings *AccountSettings, err error) {
 	settings = &AccountSettings{}
 	err = ag.Call("GET", "account/settings", nil, settings)
 	return
