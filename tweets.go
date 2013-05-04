@@ -71,7 +71,7 @@ func (tg *TweetsGroup) RetweetsOfMe(opts *Optionals) (tweets *TweetList, err err
 
 // Update: posts a status update to Twitter
 // See https://dev.twitter.com/docs/api/1.1/post/statuses/update
-func (tg *TweetsGroup) UpdateStatus(status string, opts *Optionals) (tweet *Tweet, err error) {
+func (tg *TweetsGroup) Update(status string, opts *Optionals) (tweet *Tweet, err error) {
 	if opts == nil {
 		opts = NewOptionals()
 	}
@@ -93,7 +93,7 @@ func (tg *TweetsGroup) Retweets(id int64, opts *Optionals) (tweets *TweetList, e
 
 // Returns a single Tweet, specified by the id parameter.
 // The Tweet's author will also be embedded within the tweet.
-func (tg *TweetsGroup) GetStatus(id int64, opts *Optionals) (tweet *Tweet, err error) {
+func (tg *TweetsGroup) Get(id int64, opts *Optionals) (tweet *Tweet, err error) {
 	if opts == nil {
 		opts = NewOptionals()
 	}
@@ -106,7 +106,7 @@ func (tg *TweetsGroup) GetStatus(id int64, opts *Optionals) (tweet *Tweet, err e
 // Destroys the status specified by the required ID parameter.
 // The authenticating user must be the author of the specified
 // status. returns the destroyed tweet if successful
-func (tg *TweetsGroup) DestroyStatus(id int64, opts *Optionals) (tweet *Tweet, err error) {
+func (tg *TweetsGroup) Destroy(id int64, opts *Optionals) (tweet *Tweet, err error) {
 	if opts == nil {
 		opts = NewOptionals()
 	}
@@ -129,7 +129,7 @@ func (tg *TweetsGroup) Retweet(id int64, opts *Optionals) (tweet *Tweet, err err
 
 // Updates the authenticating user's current status and attaches media for
 // upload. In other words, it creates a Tweet with a picture attached.
-func (tg *TweetsGroup) UpdateStatusWithMedia(status string, media *TweetMedia, opts *Optionals) (tweet *Tweet, err error) {
+func (tg *TweetsGroup) UpdateWithMedia(status string, media *TweetMedia, opts *Optionals) (tweet *Tweet, err error) {
 	if opts == nil {
 		opts = NewOptionals()
 	}
