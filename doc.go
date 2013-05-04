@@ -136,5 +136,29 @@ To provide optional parameters, use tweetlib.Optionals
     opts.Add("long", -122.400612831116)
     tweet, err := client.UpdateStatus("Hello, world", opts)
 
+
+There's also two ways of making arbitrary API calls. This is useful
+when you need to call a new API that is not directly supported
+by tweetlib's utility functions or maybe you want better control of
+the response objects.
+
+The first way is using Client.Call like this:
+
+    var user User
+    opts := NewOptionals()
+    opts.Add("screen_name", "sometwitteruser")
+    err := client.Call("GET", "users/show", opts, &user)
+
+Client.Call will try to unmarshal the response returned from Twitter. If
+however you wish to do it yourself or maybe not use the types defined
+by tweetlib (User, Tweet, etc), you can use CallJSON instead:
+
+    rawJSON, err := client.CallJSON("GET", "users/show", opts)
+    // rawJSON now has the JSON response from Twitter
+
+These two functions are usually internally by the many helper functions
+defined in tweetlib and also add flexibility to
+
+
 */
 package tweetlib
