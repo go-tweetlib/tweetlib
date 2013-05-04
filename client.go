@@ -76,6 +76,7 @@ func New(transport *Transport) (*Client, error) {
 	c.DM = &DMGroup{c}
 	c.Tweets = &TweetsGroup{c}
 	c.Account = &AccountGroup{c}
+	c.Search = &SearchGroup{c}
 	return c, nil
 }
 
@@ -95,6 +96,9 @@ type Client struct {
 
 	// Account functiona group
 	Account *AccountGroup
+
+	// Search functionality group
+	Search *SearchGroup
 }
 
 // Performs an arbitrary API call and returns the response JSON if successful.
