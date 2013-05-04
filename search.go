@@ -11,14 +11,36 @@ type SearchGroup struct {
 	*Client
 }
 
+// Results of a search for tweets.
+type SearchResults struct {
+	// Tweets matching the search query
+	Results TweetList `json:"statuses"`
+	// Search metadata
+	Metadata SearchMetadata `json:"search_metadata"`
+}
+
+// When searching, Twitter returns this metadata
+// along with results
+type SearchMetadata struct {
+	MaxId       int64   `json:"max_id"`
+	SinceId     int64   `json:"since_id"`
+	RefreshUrl  string  `json:"refresh_url"`
+	NextResults string  `json:"next_results"`
+	Count       int     `json:"count"`
+	CompletedIn float64 `json:"completed_in"`
+	SinceIdStr  string  `json:"since_id_str"`
+	Query       string  `json:"query"`
+	MaxIdStr    string  `json:"max_id_str"`
+}
+
 // Returns a collection of relevant Tweets matching a specified query.
 // See https://dev.twitter.com/docs/api/1.1/get/search/tweets
-func (sg *SearchGroup) Tweets(q string, opts *Optionals) (tweets *TweetList, err error) {
+func (sg *SearchGroup) Tweets(q string, opts *Optionals) (searchResults *SearchResults, err error) {
 	if opts == nil {
 		opts = NewOptionals()
 	}
 	opts.Add("q", q)
-	tweets = &TweetList{}
-	err = sg.Call("GET", "search/tweets", opts, tweets)
+	searchResults = &SearchResults{}
+	err = sg.Call("GET", "search/tweets", opts, searchResults)
 	return
 }
