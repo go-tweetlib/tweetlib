@@ -205,8 +205,8 @@ type AccountSettings struct {
 	ShowAllInlineMedia  bool   `json:"show_all_inline_media"`
 	SleepTime           struct {
 		Enabled   bool `json:"enabled"`
-		EndTime   int64
-		StartTime int64
+		EndTime   int
+		StartTime int
 	} `json:"sleep_time"`
 	TimeZone struct {
 		Name       string `json:"name"`

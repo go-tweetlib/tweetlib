@@ -8,13 +8,13 @@ package tweetlib
 
 import (
 	"bytes"
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io/ioutil"
 	"mime/multipart"
 	"net/http"
-	"net/url"
 	"reflect"
 )
 
@@ -83,52 +83,76 @@ type Client struct {
 	client *http.Client
 }
 
-// perform a GET request to the appropriate endpoint and using the provided
-// parameters. Will try to unmarshall the response to resp.
-func (c *Client) get(endpoint string, params *url.Values, resp interface{}) (err error) {
-	if params == nil {
-		params = &url.Values{}
+// Performs an arbitrary API call and returns the response JSON if successful.
+// This is generally used internally by other functions but it can also
+// be used to perform API calls not directly supported by tweetlib.
+//
+// For example
+//
+//   opts := NewOptionals()
+//   opts.Add("status", "Hello, world")
+//   rawJSON, _ := client.CallJSON("POST", "statuses/update_status", opts)
+//   var tweet Tweet
+//   err := json.Unmarshal(rawJSON, &tweet)
+//
+// is the same as
+//
+//   tweet, err := client.UpdateStatus("Hello, world", nil)
+func (c *Client) CallJSON(method, endpoint string, opts *Optionals) (rawJSON []byte, err error) {
+	if method != "GET" && method != "POST" {
+		err = fmt.Errorf("Invalid method '%s'. Must be either GET or POST.", method)
+		return
 	}
-	endpoint = fmt.Sprintf("%s/%s.json?%s", apiURL, endpoint, params.Encode())
+	if opts == nil {
+		opts = NewOptionals()
+	}
+	endpoint = fmt.Sprintf("%s/%s.json?%s", apiURL, endpoint, opts.Values.Encode())
 	fmt.Println(endpoint)
-	req, _ := http.NewRequest("GET", endpoint, nil)
+	var req *http.Request
+	if method == "POST" {
+		body := bytes.NewBuffer([]byte(opts.Values.Encode()))
+		req, _ = http.NewRequest(method, endpoint, body)
+		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	} else {
+		req, _ = http.NewRequest(method, endpoint, nil)
+	}
 	res, err := c.client.Do(req)
 	if err != nil {
-		return err
+		return
 	}
 	if err = checkResponse(res); err != nil {
-		return err
+		return
 	}
-	//a,_ := ioutil.ReadAll(res.Body)
-	//fmt.Printf("%s\n", a)
-	if err = json.NewDecoder(res.Body).Decode(resp); err != nil && reflect.TypeOf(err) != reflect.TypeOf(&json.UnmarshalTypeError{}) {
-		return err
-	}
-	return nil
+	rawJSON, err = ioutil.ReadAll(res.Body)
+	return
 }
 
-// perform a POST request to the appropriate endpoint and using the provided
-// parameters. Will try to unmarshall the response to resp.
-func (c *Client) post(endpoint string, params *url.Values, resp interface{}) (err error) {
-	body := bytes.NewBuffer([]byte(params.Encode()))
-	endpoint = fmt.Sprintf("%s/%s.json?%s", apiURL, endpoint, params.Encode())
-	req, _ := http.NewRequest("POST", endpoint, body)
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-	res, err := c.client.Do(req)
+// Performs an arbitrary API call and tries to unmarshal the result into
+// 'resp' on success. This is generally used internally by the other functions
+// but it could be used to perform unsupported API calls.
+//
+// Example usage:
+//
+//     var tweet Tweet
+//     opts := NewOptionals()
+//     opts.Add("status", "Hello, world")
+//     err := client.Call("POST", "statuses/update_status", opts, &tweet)
+//
+// is equivalent to
+//
+//     tweet, err := client.UpdateStatus("Hello, world", nil)
+func (c *Client) Call(method, endpoint string, opts *Optionals, resp interface{}) (err error) {
+	rawJSON, err := c.CallJSON(method, endpoint, opts)
 	if err != nil {
-		return err
+		return
 	}
-	if err = checkResponse(res); err != nil {
-		return err
-	}
-	if err = json.NewDecoder(res.Body).Decode(resp); err != nil && reflect.TypeOf(err) != reflect.TypeOf(&json.UnmarshalTypeError{}) {
-		return err
+	if resp != nil {
+		if err = json.Unmarshal(rawJSON, resp); err != nil &&
+			reflect.TypeOf(err) != reflect.TypeOf(&json.UnmarshalTypeError{}) {
+			return err
+		}
 	}
 	return nil
-}
-
-type TimelinesService struct {
-	c *Client
 }
 
 // Returns the 20 (by default) most recent tweets containing a users's
@@ -141,7 +165,7 @@ func (c *Client) Mentions(opts *Optionals) (tweets *TweetList, err error) {
 		opts = NewOptionals()
 	}
 	tweets = &TweetList{}
-	err = c.get("statuses/mentions_timeline", &opts.Values, tweets)
+	err = c.Call("GET", "statuses/mentions_timeline", opts, tweets)
 	return
 }
 
@@ -154,7 +178,7 @@ func (c *Client) UserTimeline(screenname string, opts *Optionals) (tweets *Tweet
 	}
 	opts.Add("screen_name", screenname)
 	tweets = new(TweetList)
-	err = c.get("statuses/user_timeline", &opts.Values, tweets)
+	err = c.Call("GET", "statuses/user_timeline", opts, tweets)
 	return
 }
 
@@ -166,7 +190,7 @@ func (c *Client) HomeTimeline(opts *Optionals) (tweets *TweetList, err error) {
 		opts = NewOptionals()
 	}
 	tweets = new(TweetList)
-	err = c.get("statuses/home_timeline", &opts.Values, tweets)
+	err = c.Call("GET", "statuses/home_timeline", opts, tweets)
 	return
 }
 
@@ -178,7 +202,7 @@ func (c *Client) RetweetsOfMe(opts *Optionals) (tweets *TweetList, err error) {
 		opts = NewOptionals()
 	}
 	tweets = new(TweetList)
-	err = c.get("statuses/retweets_of_me", &opts.Values, tweets)
+	err = c.Call("GET", "statuses/retweets_of_me", opts, tweets)
 	return
 }
 
@@ -190,7 +214,7 @@ func (c *Client) UpdateStatus(status string, opts *Optionals) (tweet *Tweet, err
 	}
 	opts.Add("status", status)
 	tweet = &Tweet{}
-	err = c.post("statuses/update", &opts.Values, tweet)
+	err = c.Call("POST", "statuses/update", opts, tweet)
 	return tweet, err
 }
 
@@ -200,7 +224,7 @@ func (c *Client) Retweets(id int64, opts *Optionals) (tweets *TweetList, err err
 		opts = NewOptionals()
 	}
 	tweets = &TweetList{}
-	err = c.get(fmt.Sprintf("statuses/retweets/%d", id), &opts.Values, tweets)
+	err = c.Call("GET", fmt.Sprintf("statuses/retweets/%d", id), opts, tweets)
 	return
 }
 
@@ -212,7 +236,7 @@ func (c *Client) GetStatus(id int64, opts *Optionals) (tweet *Tweet, err error) 
 	}
 	opts.Add("id", id)
 	tweet = &Tweet{}
-	err = c.get("statuses/show", &opts.Values, tweet)
+	err = c.Call("GET", "statuses/show", opts, tweet)
 	return
 }
 
@@ -225,7 +249,7 @@ func (c *Client) DestroyStatus(id int64, opts *Optionals) (tweet *Tweet, err err
 	}
 	opts.Add("id", id)
 	tweet = &Tweet{}
-	err = c.post(fmt.Sprintf("statuses/destroy/%d", id), &opts.Values, tweet)
+	err = c.Call("POST", fmt.Sprintf("statuses/destroy/%d", id), opts, tweet)
 	return tweet, err
 }
 
@@ -236,7 +260,7 @@ func (c *Client) Retweet(id int64, opts *Optionals) (tweet *Tweet, err error) {
 	}
 	opts.Add("id", id)
 	tweet = &Tweet{}
-	err = c.post(fmt.Sprintf("statuses/retweet/%d", id), &opts.Values, tweet)
+	err = c.Call("POST", fmt.Sprintf("statuses/retweet/%d", id), opts, tweet)
 	return tweet, err
 }
 
@@ -284,7 +308,7 @@ func (c *Client) UpdateStatusWithMedia(status string, media *TweetMedia, opts *O
 // See https://dev.twitter.com/docs/api/1.1/get/help/configuration
 func (c *Client) Configuration() (configuration *Configuration, err error) {
 	configuration = &Configuration{}
-	err = c.get("help/configuration", nil, configuration)
+	err = c.Call("GET", "help/configuration", nil, configuration)
 	return
 }
 
@@ -295,7 +319,7 @@ func (c *Client) PrivacyPolicy() (privacyPolicy string, err error) {
 		Text string `json:"privacy"`
 	}
 	ret := &pp{}
-	err = c.get("help/privacy", nil, ret)
+	err = c.Call("GET", "help/privacy", nil, ret)
 	privacyPolicy = ret.Text
 	return
 }
@@ -307,7 +331,7 @@ func (c *Client) Tos() (string, error) {
 		Text string `json:"tos"`
 	}
 	ret := &tos{}
-	err := c.get("help/tos", nil, ret)
+	err := c.Call("GET", "help/tos", nil, ret)
 	return ret.Text, err
 }
 
@@ -315,7 +339,7 @@ func (c *Client) Tos() (string, error) {
 // https://dev.twitter.com/docs/api/1.1/get/help/tos
 func (c *Client) Limits() (limits *Limits, err error) {
 	limits = &Limits{}
-	err = c.get("application/rate_limit_status", nil, limits)
+	err = c.Call("GET", "application/rate_limit_status", nil, limits)
 	return
 }
 
@@ -328,7 +352,7 @@ func (c *Client) DMList(opts *Optionals) (messages *MessageList, err error) {
 		opts = NewOptionals()
 	}
 	messages = &MessageList{}
-	err = c.get("direct_messages", &opts.Values, messages)
+	err = c.Call("GET", "direct_messages", opts, messages)
 	return
 }
 
@@ -341,7 +365,7 @@ func (c *Client) DMSent(opts *Optionals) (messages *MessageList, err error) {
 		opts = NewOptionals()
 	}
 	messages = &MessageList{}
-	err = c.get("direct_messages/sent", &opts.Values, messages)
+	err = c.Call("GET", "direct_messages/sent", opts, messages)
 	return
 }
 
@@ -353,7 +377,7 @@ func (c *Client) DM(id int64, opts *Optionals) (message *Message, err error) {
 	}
 	opts.Add("id", id)
 	message = &Message{}
-	err = c.get("direct_messages/show", &opts.Values, message)
+	err = c.Call("GET", "direct_messages/show", opts, message)
 	return
 }
 
@@ -367,7 +391,7 @@ func (c *Client) DMDestroy(id int64, opts *Optionals) (message *Message, err err
 	}
 	opts.Add("id", id)
 	message = &Message{}
-	err = c.post("direct_messages/show", &opts.Values, message)
+	err = c.Call("POST", "direct_messages/show", opts, message)
 	return
 }
 
@@ -380,7 +404,7 @@ func (c *Client) DMSend(screenname, text string, opts *Optionals) (message *Mess
 	opts.Add("screen_name", screenname)
 	opts.Add("text", text)
 	message = &Message{}
-	err = c.post("direct_messages/new", &opts.Values, message)
+	err = c.Call("POST", "direct_messages/new", opts, message)
 	return
 }
 
@@ -394,7 +418,7 @@ func (c *Client) Search(q string, opts *Optionals) (tweets *TweetList, err error
 	}
 	opts.Add("q", q)
 	tweets = &TweetList{}
-	err = c.get("users/search", &opts.Values, tweets)
+	err = c.Call("GET", "users/search", opts, tweets)
 	return
 }
 
@@ -403,6 +427,74 @@ func (c *Client) Search(q string, opts *Optionals) (tweets *TweetList, err error
 // See https://dev.twitter.com/docs/api/1.1/get/account/settings
 func (c *Client) AccountSettings() (settings *AccountSettings, err error) {
 	settings = &AccountSettings{}
-	err = c.get("account/settings", nil, settings)
+	err = c.Call("GET", "account/settings", nil, settings)
 	return
+}
+
+// Helper function to verify if credentials are valid. Returns the
+// user object if they are.
+// See https://dev.twitter.com/docs/api/1.1/get/account/verify_credentials
+func (c *Client) VerifyCredentials(opts *Optionals) (user *User, err error) {
+	if opts == nil {
+		opts = NewOptionals()
+	}
+	user = &User{}
+	err = c.Call("GET", "account/verify_credentials", opts, user)
+	return
+}
+
+// Update authenticating user's settings.
+// See https://dev.twitter.com/docs/api/1.1/post/account/settings
+func (c *Client) UpdateSettings(opts *Optionals) (newSettings *AccountSettings, err error) {
+	if opts == nil {
+		opts = NewOptionals()
+	}
+	newSettings = &AccountSettings{}
+	err = c.Call("POST", "account/settings", opts, newSettings)
+	return
+}
+
+// Enables/disables SMS delivery
+// See https://dev.twitter.com/docs/api/1.1/post/account/update_delivery_device
+func (c *Client) EnableSMS(enable bool) (err error) {
+	opts := NewOptionals()
+	if enable {
+		opts.Add("device", "sms")
+	} else {
+		opts.Add("device", "none")
+	}
+	err = c.Call("POST", "account/update_delivery_device", opts, nil)
+	return
+}
+
+// Sets values that users are able to set under the "Account" tab of their
+// settings page. Only the parameters specified will be updated.
+// See https://dev.twitter.com/docs/api/1.1/post/account/update_profile
+func (c *Client) UpdateProfile(opts *Optionals) (user *User, err error) {
+	if opts == nil {
+		opts = NewOptionals()
+	}
+	user = &User{}
+	err = c.Call("POST", "account/update_profile", opts, user)
+	return
+}
+
+// Updates the authenticating user's profile background image.
+// Passing an empty []byte as image will disable the current
+// background image.
+// https://dev.twitter.com/docs/api/1.1/post/account/update_profile_background_image
+func (c *Client) UpdateProfileBackgroundImage(image []byte, opts *Optionals) (user *User, err error) {
+	if opts == nil {
+		opts = NewOptionals()
+	}
+	if len(image) > 0 {
+		opts.Add("image", base64.StdEncoding.EncodeToString(image))
+		opts.Add("use", true)
+	} else {
+		opts.Add("use", false)
+	}
+	user = &User{}
+	err = c.Call("POST", "account/update_profile_background_image", opts, user)
+	return
+
 }
