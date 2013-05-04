@@ -6,6 +6,7 @@
 
 package tweetlib
 
+// Groups help functions
 type HelpGroup struct {
 	*Client
 }
