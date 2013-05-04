@@ -18,6 +18,60 @@ type TweetsGroup struct {
 	*Client
 }
 
+// Holds a single tweet. Depending on the API call used, this
+// struct may or may not be fully populated.
+type Tweet struct {
+	Contributors        string `json:"contributors"`
+	User                *User  `json:"user"`
+	Truncated           bool   `json:"truncated"`
+	Text                string `json:"text"`
+	InReplyToScreenName string `json:"in_reply_to_screen_name"`
+	RetweetCount        int64  `json:"retweet_count"`
+	Entities            struct {
+		Urls []struct {
+			DisplayUrl  string  `json:"display_url"`
+			Indices     []int64 `json:"indices"`
+			Url         string  `json:"url"`
+			ExpandedUrl string  `json:"expanded_url"`
+		} `json:"urls"`
+		Hashtags []struct {
+			Text    string  `json:"text"`
+			Indices []int64 `json:"indices"`
+		} `json:"hashtags"`
+		UserMentions []struct {
+			ScreenName string  `json:"screen_name"`
+			Name       string  `json:"name"`
+			Indices    []int64 `json:"indices"`
+			IdStr      string  `json:"id_str"`
+			Id         int64   `json:"id"`
+		} `json:"user_mentions"`
+	} `json:"entities"`
+	Geo                  string `json:"geo"`
+	InReplyToUserId      int64  `json:"in_reply_to_user_id"`
+	IdStr                string `json:"id_str"`
+	CreatedAt            string `json:"created_at"`
+	Source               string `json:"source"`
+	Id                   int64  `json:"id"`
+	InReplyToStatusId    string `json:"in_reply_to_status_id"`
+	PossiblySensitive    bool   `json:"possibly_sensitive"`
+	Retweeted            bool   `json:"retweeted"`
+	InReplyToUserIdStr   string `json:"in_reply_to_user_id_str"`
+	Coordinates          string `json:"coordinates"`
+	Favorited            bool   `json:"favorited"`
+	Place                string `json:"place"`
+	InReplyToStatusIdStr string `json:"in_reply_to_status_id_str"`
+}
+
+// A list of tweets
+type TweetList []Tweet
+
+// A media attached to a tweet. In practice, this represents
+// an image file.
+type TweetMedia struct {
+	Filename string // Name for the file (e.g. image.png)
+	Data     []byte // Raw file data
+}
+
 // Returns the 20 (by default) most recent tweets containing a users's
 // @screen_name for the authenticating user.
 // THis method can only return up to 800 tweets (via the "count" optional
@@ -163,4 +217,39 @@ func (tg *TweetsGroup) UpdateWithMedia(status string, media *TweetMedia, opts *O
 	}
 	return
 
+}
+
+// Results of a search for tweets.
+type TweetSearchResults struct {
+	// Tweets matching the search query
+	Results TweetList `json:"statuses"`
+	// Search metadata
+	Metadata TweetSearchMetadata `json:"search_metadata"`
+}
+
+// When searching, Twitter returns this metadata
+// along with results
+type TweetSearchMetadata struct {
+	MaxId       int64   `json:"max_id"`
+	SinceId     int64   `json:"since_id"`
+	RefreshUrl  string  `json:"refresh_url"`
+	NextResults string  `json:"next_results"`
+	Count       int     `json:"count"`
+	CompletedIn float64 `json:"completed_in"`
+	SinceIdStr  string  `json:"since_id_str"`
+	Query       string  `json:"query"`
+	MaxIdStr    string  `json:"max_id_str"`
+}
+
+// Returns a collection of relevant Tweets matching a specified query.
+// See https://dev.twitter.com/docs/api/1.1/get/search/tweets
+// and also https://dev.twitter.com/docs/using-search
+func (tg *TweetsGroup) Tweets(q string, opts *Optionals) (searchResults *TweetSearchResults, err error) {
+	if opts == nil {
+		opts = NewOptionals()
+	}
+	opts.Add("q", q)
+	searchResults = &TweetSearchResults{}
+	err = tg.Call("GET", "search/tweets", opts, searchResults)
+	return
 }

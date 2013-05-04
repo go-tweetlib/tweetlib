@@ -66,20 +66,6 @@ func checkResponse(res *http.Response) (err error) {
 	return errors.New(jerr.String())
 }
 
-// Creates a new twitter client
-func New(transport *Transport) (*Client, error) {
-	if transport.Client() == nil {
-		return nil, errors.New("client is nil")
-	}
-	c := &Client{client: transport.Client()}
-	c.Help = &HelpGroup{c}
-	c.DM = &DMGroup{c}
-	c.Tweets = &TweetsGroup{c}
-	c.Account = &AccountGroup{c}
-	c.Search = &SearchGroup{c}
-	return c, nil
-}
-
 // Client: Twitter API client provides access to the various
 // API services
 type Client struct {
@@ -99,6 +85,30 @@ type Client struct {
 
 	// Search functionality group
 	Search *SearchGroup
+
+	// User services
+	User *UserService
+
+	// API base endpoint. This is the base endpoing URL for API calls. This
+	// can be overwritten by an application that needs to use a different
+	// version of the library or maybe a mock.
+	Endpoint string
+}
+
+// Creates a new twitter client
+func New(transport *Transport) (*Client, error) {
+	if transport.Client() == nil {
+		return nil, errors.New("client is nil")
+	}
+	c := &Client{client: transport.Client()}
+	c.Help = &HelpGroup{c}
+	c.DM = &DMGroup{c}
+	c.Tweets = &TweetsGroup{c}
+	c.Account = &AccountGroup{c}
+	c.Search = &SearchGroup{c}
+	c.User = &UserService{c}
+	c.Endpoint = "https://api.twitter.com/1.1"
+	return c, nil
 }
 
 // Performs an arbitrary API call and returns the response JSON if successful.
@@ -172,18 +182,4 @@ func (c *Client) Call(method, endpoint string, opts *Optionals, resp interface{}
 		}
 	}
 	return nil
-}
-
-// Provides a simple, relevance-based search interface to public user accounts
-// on Twitter. Try querying by topical interest, full name, company name,
-// location, or other criteria. Exact match searches are not supported.
-// See https://dev.twitter.com/docs/api/1.1/get/users/search
-func (c *Client) USearch(q string, opts *Optionals) (tweets *TweetList, err error) {
-	if opts == nil {
-		opts = NewOptionals()
-	}
-	opts.Add("q", q)
-	tweets = &TweetList{}
-	err = c.Call("GET", "users/search", opts, tweets)
-	return
 }

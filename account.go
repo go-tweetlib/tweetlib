@@ -118,4 +118,66 @@ func (ag *AccountGroup) UpdateProfileImage(image []byte, opts *Optionals) (user 
 	return
 }
 
+// Settings for the authenticated account
+type AccountSettings struct {
+	AlwaysUseHttps      bool   `json:"always_use_https"`
+	DiscoverableByEmail bool   `json:"discoverable_by_email"`
+	GeoEnabled          bool   `json:"geo_enabled"`
+	Language            string `json:"language"`
+	Protected           bool   `json:"protected"`
+	ScreenName          string `json:"screen_name"`
+	ShowAllInlineMedia  bool   `json:"show_all_inline_media"`
+	SleepTime           struct {
+		Enabled   bool `json:"enabled"`
+		EndTime   int
+		StartTime int
+	} `json:"sleep_time"`
+	TimeZone struct {
+		Name       string `json:"name"`
+		TzinfoName string `json:"tzinfo_name"`
+		UtcOffset  int64
+	} `json:"time_zone"`
+	TrendLocation []struct {
+		Country     string `json:"country"`
+		CountryCode string `json:"countryCode"`
+		Name        string `json:"name"`
+		ParentId    int64  `json:"parentid"`
+		PlaceType   struct {
+			Code int64  `json:"code"`
+			Name string `json:"name"`
+		}
+		Url   string `json:"url"`
+		WoeId int64  `json:"woeid"`
+	} `json:"trend_location"`
+	UseCookiePersonalization bool `json:"use_cookie_personalization"`
+}
 
+// Represents Twitter's current resource limits
+// See https://dev.twitter.com/docs/rate-limiting/1.1/limits
+// Usage:
+//	limits, _ := c.Help.Limits()
+//	fmt.Printf("App has %d user_timeline calls remaining\n",
+//		limits["statuses"]["/statuses/user_timeline"].Remaining)
+type Limits struct {
+	// For which context these limits are
+	// For tweetlib this will always be the user token
+	Context struct {
+		AccessToken string `json:"access_token"`
+	} `json:"rate_limit_context"`
+
+	// Resrouce families are "accounts", "help", etc
+	ResourceFamilies map[string]map[string]struct {
+		// How many calls remaining for this resource
+		Remaining int `json:"remaining"`
+		// When the limit will reset (epoch time)
+		Reset int64 `json:"reset"`
+		// Total number of calls allowed
+		Limit int `json:"limit"`
+	} `json:"resources"`
+}
+
+type LimitResourceFamily map[string]struct {
+	Remaining int   `json:"remaining"`
+	Reset     int64 `json:"reset"`
+	Limit     int   `json:"limit"`
+}
