@@ -12,6 +12,7 @@ import (
 	"fmt"
 	"mime/multipart"
 	"net/http"
+	"reflect"
 )
 
 type TweetsGroup struct {
@@ -212,10 +213,12 @@ func (tg *TweetsGroup) UpdateWithMedia(status string, media *TweetMedia, opts *O
 	if err = checkResponse(res); err != nil {
 		return
 	}
-	if err = json.NewDecoder(res.Body).Decode(tweet); err != nil {
+	tweet = &Tweet{}
+	if err = json.NewDecoder(res.Body).Decode(tweet); err != nil &&
+		reflect.TypeOf(err) != reflect.TypeOf(&json.UnmarshalTypeError{}) {
 		return
 	}
-	return
+	return tweet, nil
 
 }
 
