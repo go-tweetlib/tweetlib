@@ -68,3 +68,15 @@ func (us *UserService) Search(q string, opts *Optionals) (users *UserList, err e
 	err = us.Call("GET", "users/search", opts, users)
 	return
 }
+
+// See https://dev.twitter.com/docs/api/1.1/get/users/show
+func (us *UserService) Show(screenName string, opts *Optionals) (user *User, err error) {
+	if opts == nil {
+		opts = NewOptionals()
+	}
+	opts.Add("screen_name", screenName)
+	user = &User{}
+	err = us.Call("GET", "users/show", opts, user)
+	return
+}
+
