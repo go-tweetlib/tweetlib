@@ -89,6 +89,9 @@ type Client struct {
 	// User services
 	User *UserService
 
+	// List services
+	Lists *ListService
+
 	// API base endpoint. This is the base endpoing URL for API calls. This
 	// can be overwritten by an application that needs to use a different
 	// version of the library or maybe a mock.
@@ -107,6 +110,7 @@ func New(transport *Transport) (*Client, error) {
 	c.Account = &AccountGroup{c}
 	c.Search = &SearchGroup{c}
 	c.User = &UserService{c}
+	c.Lists = &ListService{c}
 	c.Endpoint = "https://api.twitter.com/1.1"
 	return c, nil
 }
