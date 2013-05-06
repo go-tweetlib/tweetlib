@@ -72,19 +72,19 @@ type Client struct {
 	client *http.Client
 
 	// Twitter's 'statuses' function group
-	Tweets *TweetsGroup
+	Tweets *TweetsService
 
 	// Direct Messages function group
-	DM *DMGroup
+	DM *DMService
 
 	// Twitter's Help function group
-	Help *HelpGroup
+	Help *HelpService
 
 	// Account functiona group
-	Account *AccountGroup
+	Account *AccountService
 
 	// Search functionality group
-	Search *SearchGroup
+	Search *SearchService
 
 	// User services
 	User *UserService
@@ -104,11 +104,11 @@ func New(transport *Transport) (*Client, error) {
 		return nil, errors.New("client is nil")
 	}
 	c := &Client{client: transport.Client()}
-	c.Help = &HelpGroup{c}
-	c.DM = &DMGroup{c}
-	c.Tweets = &TweetsGroup{c}
-	c.Account = &AccountGroup{c}
-	c.Search = &SearchGroup{c}
+	c.Help = &HelpService{c}
+	c.DM = &DMService{c}
+	c.Tweets = &TweetsService{c}
+	c.Account = &AccountService{c}
+	c.Search = &SearchService{c}
 	c.User = &UserService{c}
 	c.Lists = &ListService{c}
 	c.Endpoint = "https://api.twitter.com/1.1"

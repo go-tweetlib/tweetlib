@@ -7,7 +7,7 @@
 package tweetlib
 
 // Groups help functions
-type HelpGroup struct {
+type HelpService struct {
 	*Client
 }
 
@@ -15,7 +15,7 @@ type HelpGroup struct {
 // slugs which are not usernames, maximum photo resolutions, and t.co URL
 // lengths.
 // See https://dev.twitter.com/docs/api/1.1/get/help/configuration
-func (hs *HelpGroup) Configuration() (configuration *Configuration, err error) {
+func (hs *HelpService) Configuration() (configuration *Configuration, err error) {
 	configuration = &Configuration{}
 	err = hs.Call("GET", "help/configuration", nil, configuration)
 	return
@@ -23,7 +23,7 @@ func (hs *HelpGroup) Configuration() (configuration *Configuration, err error) {
 
 // Returns Twitter's Privacy Policy
 // Seehttps://dev.twitter.com/docs/api/1.1/get/help/privacy
-func (hs *HelpGroup) PrivacyPolicy() (privacyPolicy string, err error) {
+func (hs *HelpService) PrivacyPolicy() (privacyPolicy string, err error) {
 	type pp struct {
 		Text string `json:"privacy"`
 	}
@@ -35,7 +35,7 @@ func (hs *HelpGroup) PrivacyPolicy() (privacyPolicy string, err error) {
 
 // Returns Twitter's terms of service
 // See https://dev.twitter.com/docs/api/1.1/get/help/tos
-func (hs *HelpGroup) Tos() (string, error) {
+func (hs *HelpService) Tos() (string, error) {
 	type tos struct {
 		Text string `json:"tos"`
 	}
@@ -46,7 +46,7 @@ func (hs *HelpGroup) Tos() (string, error) {
 
 // Returns current Twitter's rate limits
 // See https://dev.twitter.com/docs/api/1.1/get/application/rate_limit_status
-func (hs *HelpGroup) Limits() (limits *Limits, err error) {
+func (hs *HelpService) Limits() (limits *Limits, err error) {
 	limits = &Limits{}
 	err = hs.Call("GET", "application/rate_limit_status", nil, limits)
 	return

@@ -15,7 +15,7 @@ import (
 	"reflect"
 )
 
-type TweetsGroup struct {
+type TweetsService struct {
 	*Client
 }
 
@@ -78,7 +78,7 @@ type TweetMedia struct {
 // THis method can only return up to 800 tweets (via the "count" optional
 // parameter.
 // See https://dev.twitter.com/docs/api/1.1/get/statuses/mentions_timeline
-func (tg *TweetsGroup) Mentions(opts *Optionals) (tweets *TweetList, err error) {
+func (tg *TweetsService) Mentions(opts *Optionals) (tweets *TweetList, err error) {
 	if opts == nil {
 		opts = NewOptionals()
 	}
@@ -90,7 +90,7 @@ func (tg *TweetsGroup) Mentions(opts *Optionals) (tweets *TweetList, err error) 
 // Returns a collection of the most recent Tweets posted by the user indicated
 // by the screen_name.
 // See https://dev.twitter.com/docs/api/1.1/get/statuses/user_timeline
-func (tg *TweetsGroup) UserTimeline(screenname string, opts *Optionals) (tweets *TweetList, err error) {
+func (tg *TweetsService) UserTimeline(screenname string, opts *Optionals) (tweets *TweetList, err error) {
 	if opts == nil {
 		opts = NewOptionals()
 	}
@@ -103,7 +103,7 @@ func (tg *TweetsGroup) UserTimeline(screenname string, opts *Optionals) (tweets 
 // Returns a collection of the most recent Tweets and retweets posted by
 // the authenticating user and the users they follow.
 // See https://dev.twitter.com/docs/api/1.1/get/statuses/home_timeline
-func (tg *TweetsGroup) HomeTimeline(opts *Optionals) (tweets *TweetList, err error) {
+func (tg *TweetsService) HomeTimeline(opts *Optionals) (tweets *TweetList, err error) {
 	if opts == nil {
 		opts = NewOptionals()
 	}
@@ -115,7 +115,7 @@ func (tg *TweetsGroup) HomeTimeline(opts *Optionals) (tweets *TweetList, err err
 // Returns a collection of the  most recent tweets authored by the
 // authenticating user that have been retweeted by others.
 // See https://dev.twitter.com/docs/api/1.1/get/statuses/retweets_of_me
-func (tg *TweetsGroup) RetweetsOfMe(opts *Optionals) (tweets *TweetList, err error) {
+func (tg *TweetsService) RetweetsOfMe(opts *Optionals) (tweets *TweetList, err error) {
 	if opts == nil {
 		opts = NewOptionals()
 	}
@@ -126,7 +126,7 @@ func (tg *TweetsGroup) RetweetsOfMe(opts *Optionals) (tweets *TweetList, err err
 
 // Update: posts a status update to Twitter
 // See https://dev.twitter.com/docs/api/1.1/post/statuses/update
-func (tg *TweetsGroup) Update(status string, opts *Optionals) (tweet *Tweet, err error) {
+func (tg *TweetsService) Update(status string, opts *Optionals) (tweet *Tweet, err error) {
 	if opts == nil {
 		opts = NewOptionals()
 	}
@@ -137,7 +137,7 @@ func (tg *TweetsGroup) Update(status string, opts *Optionals) (tweet *Tweet, err
 }
 
 // Returns up to 100 of the first retweets of a given tweet Id
-func (tg *TweetsGroup) Retweets(id int64, opts *Optionals) (tweets *TweetList, err error) {
+func (tg *TweetsService) Retweets(id int64, opts *Optionals) (tweets *TweetList, err error) {
 	if opts == nil {
 		opts = NewOptionals()
 	}
@@ -148,7 +148,7 @@ func (tg *TweetsGroup) Retweets(id int64, opts *Optionals) (tweets *TweetList, e
 
 // Returns a single Tweet, specified by the id parameter.
 // The Tweet's author will also be embedded within the tweet.
-func (tg *TweetsGroup) Get(id int64, opts *Optionals) (tweet *Tweet, err error) {
+func (tg *TweetsService) Get(id int64, opts *Optionals) (tweet *Tweet, err error) {
 	if opts == nil {
 		opts = NewOptionals()
 	}
@@ -161,7 +161,7 @@ func (tg *TweetsGroup) Get(id int64, opts *Optionals) (tweet *Tweet, err error) 
 // Destroys the status specified by the required ID parameter.
 // The authenticating user must be the author of the specified
 // status. returns the destroyed tweet if successful
-func (tg *TweetsGroup) Destroy(id int64, opts *Optionals) (tweet *Tweet, err error) {
+func (tg *TweetsService) Destroy(id int64, opts *Optionals) (tweet *Tweet, err error) {
 	if opts == nil {
 		opts = NewOptionals()
 	}
@@ -172,7 +172,7 @@ func (tg *TweetsGroup) Destroy(id int64, opts *Optionals) (tweet *Tweet, err err
 }
 
 // Retweets a tweet. Returns the original tweet with retweet details embedded.
-func (tg *TweetsGroup) Retweet(id int64, opts *Optionals) (tweet *Tweet, err error) {
+func (tg *TweetsService) Retweet(id int64, opts *Optionals) (tweet *Tweet, err error) {
 	if opts == nil {
 		opts = NewOptionals()
 	}
@@ -184,7 +184,7 @@ func (tg *TweetsGroup) Retweet(id int64, opts *Optionals) (tweet *Tweet, err err
 
 // Updates the authenticating user's current status and attaches media for
 // upload. In other words, it creates a Tweet with a picture attached.
-func (tg *TweetsGroup) UpdateWithMedia(status string, media *TweetMedia, opts *Optionals) (tweet *Tweet, err error) {
+func (tg *TweetsService) UpdateWithMedia(status string, media *TweetMedia, opts *Optionals) (tweet *Tweet, err error) {
 	if opts == nil {
 		opts = NewOptionals()
 	}
@@ -247,7 +247,7 @@ type TweetSearchMetadata struct {
 // Returns a collection of relevant Tweets matching a specified query.
 // See https://dev.twitter.com/docs/api/1.1/get/search/tweets
 // and also https://dev.twitter.com/docs/using-search
-func (tg *TweetsGroup) Tweets(q string, opts *Optionals) (searchResults *TweetSearchResults, err error) {
+func (tg *TweetsService) Tweets(q string, opts *Optionals) (searchResults *TweetSearchResults, err error) {
 	if opts == nil {
 		opts = NewOptionals()
 	}

@@ -11,14 +11,14 @@ import (
 )
 
 // Groups account-related functions
-type AccountGroup struct {
+type AccountService struct {
 	*Client
 }
 
 // Returns settings (including current trend, geo and sleep time information)
 // for the authenticating user
 // See https://dev.twitter.com/docs/api/1.1/get/account/settings
-func (ag *AccountGroup) Settings() (settings *AccountSettings, err error) {
+func (ag *AccountService) Settings() (settings *AccountSettings, err error) {
 	settings = &AccountSettings{}
 	err = ag.Call("GET", "account/settings", nil, settings)
 	return
@@ -27,7 +27,7 @@ func (ag *AccountGroup) Settings() (settings *AccountSettings, err error) {
 // Helper function to verify if credentials are valid. Returns the
 // user object if they are.
 // See https://dev.twitter.com/docs/api/1.1/get/account/verify_credentials
-func (ag *AccountGroup) VerifyCredentials(opts *Optionals) (user *User, err error) {
+func (ag *AccountService) VerifyCredentials(opts *Optionals) (user *User, err error) {
 	if opts == nil {
 		opts = NewOptionals()
 	}
@@ -38,7 +38,7 @@ func (ag *AccountGroup) VerifyCredentials(opts *Optionals) (user *User, err erro
 
 // Update authenticating user's settings.
 // See https://dev.twitter.com/docs/api/1.1/post/account/settings
-func (ag *AccountGroup) UpdateSettings(opts *Optionals) (newSettings *AccountSettings, err error) {
+func (ag *AccountService) UpdateSettings(opts *Optionals) (newSettings *AccountSettings, err error) {
 	if opts == nil {
 		opts = NewOptionals()
 	}
@@ -49,7 +49,7 @@ func (ag *AccountGroup) UpdateSettings(opts *Optionals) (newSettings *AccountSet
 
 // Enables/disables SMS delivery
 // See https://dev.twitter.com/docs/api/1.1/post/account/update_delivery_device
-func (ag *AccountGroup) EnableSMS(enable bool) (err error) {
+func (ag *AccountService) EnableSMS(enable bool) (err error) {
 	opts := NewOptionals()
 	if enable {
 		opts.Add("device", "sms")
@@ -63,7 +63,7 @@ func (ag *AccountGroup) EnableSMS(enable bool) (err error) {
 // Sets values that users are able to set under the "Account" tab of their
 // settings page. Only the parameters specified will be updated.
 // See https://dev.twitter.com/docs/api/1.1/post/account/update_profile
-func (ag *AccountGroup) UpdateProfile(opts *Optionals) (user *User, err error) {
+func (ag *AccountService) UpdateProfile(opts *Optionals) (user *User, err error) {
 	if opts == nil {
 		opts = NewOptionals()
 	}
@@ -76,7 +76,7 @@ func (ag *AccountGroup) UpdateProfile(opts *Optionals) (user *User, err error) {
 // Passing an empty []byte as image will disable the current
 // background image.
 // https://dev.twitter.com/docs/api/1.1/post/account/update_profile_background_image
-func (ag *AccountGroup) UpdateProfileBackgroundImage(image []byte, opts *Optionals) (user *User, err error) {
+func (ag *AccountService) UpdateProfileBackgroundImage(image []byte, opts *Optionals) (user *User, err error) {
 	if opts == nil {
 		opts = NewOptionals()
 	}
@@ -96,7 +96,7 @@ func (ag *AccountGroup) UpdateProfileBackgroundImage(image []byte, opts *Optiona
 // authenticating user's profile page on twitter.com. Each parameter's value
 // must be a valid hexidecimal value, and may be either three or six characters
 // (ex: #fff or #ffffff).
-func (ag *AccountGroup) UpdateProfileColors(opts *Optionals) (user *User, err error) {
+func (ag *AccountService) UpdateProfileColors(opts *Optionals) (user *User, err error) {
 	if opts == nil {
 		opts = NewOptionals()
 	}
@@ -108,7 +108,7 @@ func (ag *AccountGroup) UpdateProfileColors(opts *Optionals) (user *User, err er
 // Updates the authenticating user's profile image. The image parameter should
 // be the raw data from the image file, not a path or URL
 // See https://dev.twitter.com/docs/api/1.1/post/account/update_profile_image
-func (ag *AccountGroup) UpdateProfileImage(image []byte, opts *Optionals) (user *User, err error) {
+func (ag *AccountService) UpdateProfileImage(image []byte, opts *Optionals) (user *User, err error) {
 	if opts == nil {
 		opts = NewOptionals()
 	}

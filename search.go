@@ -7,7 +7,7 @@
 package tweetlib
 
 // Groups search functionality
-type SearchGroup struct {
+type SearchService struct {
 	*Client
 }
 
@@ -36,7 +36,7 @@ type SearchMetadata struct {
 // Returns a collection of relevant Tweets matching a specified query.
 // See https://dev.twitter.com/docs/api/1.1/get/search/tweets
 // and also https://dev.twitter.com/docs/using-search
-func (sg *SearchGroup) Tweets(q string, opts *Optionals) (searchResults *SearchResults, err error) {
+func (sg *SearchService) Tweets(q string, opts *Optionals) (searchResults *SearchResults, err error) {
 	if opts == nil {
 		opts = NewOptionals()
 	}

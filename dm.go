@@ -6,7 +6,7 @@
 
 package tweetlib
 
-type DMGroup struct {
+type DMService struct {
 	*Client
 }
 
@@ -31,7 +31,7 @@ type DirectMessageList []DirectMessage
 // Includes detailed information about the sender and recipient user. You can
 // request up to 200 direct messages per call, up to a maximum of 800 incoming DMs
 // See https://dev.twitter.com/docs/api/1.1/get/direct_messages
-func (dm *DMGroup) List(opts *Optionals) (messages *DirectMessageList, err error) {
+func (dm *DMService) List(opts *Optionals) (messages *DirectMessageList, err error) {
 	if opts == nil {
 		opts = NewOptionals()
 	}
@@ -44,7 +44,7 @@ func (dm *DMGroup) List(opts *Optionals) (messages *DirectMessageList, err error
 // Includes detailed information about the sender and recipient user. You can
 // request up to 200 direct messages per call, up to a maximum of 800 outgoing DMs.
 // See https://dev.twitter.com/docs/api/1.1/get/direct_messages/sent
-func (dm *DMGroup) Sent(opts *Optionals) (messages *DirectMessageList, err error) {
+func (dm *DMService) Sent(opts *Optionals) (messages *DirectMessageList, err error) {
 	if opts == nil {
 		opts = NewOptionals()
 	}
@@ -55,7 +55,7 @@ func (dm *DMGroup) Sent(opts *Optionals) (messages *DirectMessageList, err error
 
 // Returns a single direct message, specified by an id parameter.
 // See https://dev.twitter.com/docs/api/1.1/get/direct_messages/show
-func (dm *DMGroup) Get(id int64, opts *Optionals) (message *DirectMessage, err error) {
+func (dm *DMService) Get(id int64, opts *Optionals) (message *DirectMessage, err error) {
 	if opts == nil {
 		opts = NewOptionals()
 	}
@@ -69,7 +69,7 @@ func (dm *DMGroup) Get(id int64, opts *Optionals) (message *DirectMessage, err e
 // The authenticating user must be the recipient of the specified direct
 // message.
 // See https://dev.twitter.com/docs/api/1.1/post/direct_messages/destroy
-func (dm *DMGroup) Destroy(id int64, opts *Optionals) (message *DirectMessage, err error) {
+func (dm *DMService) Destroy(id int64, opts *Optionals) (message *DirectMessage, err error) {
 	if opts == nil {
 		opts = NewOptionals()
 	}
@@ -81,7 +81,7 @@ func (dm *DMGroup) Destroy(id int64, opts *Optionals) (message *DirectMessage, e
 
 // Sends a new direct message to the specified user from the authenticating user.
 // See https://dev.twitter.com/docs/api/1.1/post/direct_messages/new
-func (dm *DMGroup) Send(screenname, text string, opts *Optionals) (message *DirectMessage, err error) {
+func (dm *DMService) Send(screenname, text string, opts *Optionals) (message *DirectMessage, err error) {
 	if opts == nil {
 		opts = NewOptionals()
 	}
