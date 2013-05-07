@@ -99,11 +99,11 @@ type Client struct {
 }
 
 // Creates a new twitter client
-func New(transport *Transport) (*Client, error) {
-	if transport.Client() == nil {
-		return nil, errors.New("client is nil")
+func New(oauthClient *http.Client) (*Client, error) {
+	if oauthClient == nil {
+		return nil, errors.New("oauthClient is nil")
 	}
-	c := &Client{client: transport.Client()}
+	c := &Client{client: oauthClient}
 	c.Help = &HelpService{c}
 	c.DM = &DMService{c}
 	c.Tweets = &TweetsService{c}
