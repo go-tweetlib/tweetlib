@@ -28,7 +28,7 @@ Usage example:
         Token: token,
   }
 
-  client := tweetlib.New(tr.Client())
+  client, _ := tweetlib.New(tr.Client())
   client.Tweets.Update("Hello, world")
 
 Authentication
