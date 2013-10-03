@@ -14,12 +14,12 @@ Usage example:
 
   import "robteix.com/v2/tweetlib"
 
-  config := &Config{
+  config := &tweetlib.Config{
   	ConsumerKey: "your-consumer-key",
   	ConsumerSecret: "your-consumer-secret",
 	Callback: "http:www.my-app.com/my-callback",
   }
-  token := &Token{
+  token := &tweetlib.Token{
         OAuthSecret: "your-oauth-secret",
         OAuthToken: "your-oauth-token",
   }
@@ -43,7 +43,7 @@ application's page. You can create new applications by visiting
 http://dev.twitter.com/apps/new. Twitter also requires a callback URL
 that will receive Twitter's token
 
-    config := &Config{
+    config := &tweetlib.Config{
         ConsumerKey: "your-consumer-key",
 	ConsumerSecret: "your-consumer-secret",
 	Callback: "http://www.my-app.com/my-callback",
