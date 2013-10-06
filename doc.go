@@ -109,7 +109,7 @@ Application Only Authentication
 
 Using the Twitter API we can obtain an authentication token for only our application
 
-   a := &ApplicationOnly{
+   a := &tweetlib.ApplicationOnly{
       Client: &http.Client{},  // Or whatever client you wish to use
       Config: config,
    }
@@ -123,9 +123,9 @@ We can invalidate a previously obtained application only token by passing it to 
 InvalidateToken function
 
    token := "AAAAAAAAAAAAAAAAAAAAAAA%2FAAAAAAAAAAAA"
-   a := &ApplicationOnly{
+   a := &tweetlib.ApplicationOnly{
       Client: &http.Client{},
-      Config: config          
+      Config: config,
    }
    a.InvalidateToken(token)
  
