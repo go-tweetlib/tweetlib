@@ -11,6 +11,7 @@ import (
 	"crypto/hmac"
 	"crypto/sha1"
 	"encoding/base64"
+    "encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -24,10 +25,16 @@ import (
 )
 
 const (
-	tokenRequestURL = "https://api.twitter.com/oauth/request_token" // request token endpoint
-	authURL         = "https://api.twitter.com/oauth/authorize"     // user authorization endpoint
-	accessTokenURL  = "https://api.twitter.com/oauth/access_token"  // access token endpoint
+	tokenRequestURL    = "https://api.twitter.com/oauth/request_token" // request token endpoint
+	authURL            = "https://api.twitter.com/oauth/authorize"     // user authorization endpoint
+	accessTokenURL     = "https://api.twitter.com/oauth/access_token"  // access token endpoint
+    applicationOnlyURL = "https://api.twitter.com/oauth2/token"        // oauth2 endpoint for applications
 )
+
+type ApplicationTokenResponse struct {
+    Token_type   string
+    Access_token string    
+}
 
 type Config struct {
 	ConsumerKey    string
@@ -39,6 +46,7 @@ type Token struct {
 	OAuthSecret string
 	OAuthToken  string
 }
+
 type TempToken struct {
 	Token  string
 	Secret string
@@ -58,6 +66,40 @@ func (c *Config) callback() string {
 		return c.Callback
 	}
 	return "oob"
+}
+
+type ApplicationOnly struct {
+    *http.Client
+    *Config
+}
+
+// Gets a token for only the application desiring to make API calls. The full step breakdown
+// can be found at https://dev.twitter.com/docs/auth/application-only-auth.
+func (a *ApplicationOnly) GetToken() (string, error) {
+    req, err := http.NewRequest("POST", applicationOnlyURL, strings.NewReader("grant_type=client_credentials"))
+    req.SetBasicAuth(a.Config.ConsumerKey, a.Config.ConsumerSecret)
+    req.Header.Add("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8")
+    resp, err := a.Client.Do(req)
+    if err != nil {
+        return "", err    
+    } 
+    defer resp.Body.Close()
+    if resp.StatusCode != 200 {
+        return "", StatusCodeError(resp)    
+    }
+    body, err := ioutil.ReadAll(resp.Body)
+    if err != nil {
+        return "", err    
+    } 
+    var tokenResponse ApplicationTokenResponse
+    err = json.Unmarshal(body, &tokenResponse)
+    if err != nil {
+        return "", err    
+    } 
+    if tokenResponse.Token_type != "bearer" {
+        return "", NoBearerTokenError()
+    }
+    return tokenResponse.Access_token, nil
 }
 
 type Transport struct {
@@ -200,6 +242,8 @@ func (t *Transport) AccessToken(tempToken *TempToken, oauthVerifier string) (*To
 	t.OAuthSecret = data.Get("oauth_token_secret")
 	return &Token{OAuthToken: t.OAuthToken, OAuthSecret: t.OAuthSecret}, nil
 }
+
+
 
 func (t *Transport) TempToken() (*TempToken, error) {
 	var body io.Reader
