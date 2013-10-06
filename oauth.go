@@ -85,8 +85,9 @@ func (a *ApplicationOnly) getResponse(req *http.Request) ([]byte, error) {
         return nil, err    
     } 
     defer resp.Body.Close()
-    if resp.StatusCode != 200 {
-        return nil, StatusCodeError(resp)    
+    err = checkResponse(resp)
+    if err != nil {
+        return nil, err
     }
     body, err := ioutil.ReadAll(resp.Body)
     if err != nil {
