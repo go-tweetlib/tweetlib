@@ -1,2 +1,5 @@
 twitter_test.go
 *~
+*.swp
+*.swo
+*.test
