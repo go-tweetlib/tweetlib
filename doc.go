@@ -105,6 +105,30 @@ Transport with the saved token.
 	    Token: savedUserToken,
     }
 
+Application Only Authentication
+
+Using the Twitter API we can obtain an authentication token for only our application
+
+   a := &ApplicationOnly{
+      Client: &http.Client{},  // Or whatever client you wish to use
+      Config: config,
+   }
+   token := a.GetToken()
+
+Yes it's that easy. Now you have a token that you can use to make API calls
+
+Invalidating An Application Authentication Token
+
+We can invalidate a previously obtained application only token by passing it to the 
+InvalidateToken function
+
+   token := "AAAAAAAAAAAAAAAAAAAAAAA%2FAAAAAAAAAAAA"
+   a := &ApplicationOnly{
+      Client: &http.Client{},
+      Config: config          
+   }
+   a.InvalidateToken(token)
+ 
 Making API calls
 
 Making an API call is trivial once authentication is set up. It all starts
