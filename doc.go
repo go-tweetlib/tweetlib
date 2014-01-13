@@ -105,19 +105,48 @@ Transport with the saved token.
 	    Token: savedUserToken,
     }
 
+Application Only Authentication
+
+Using the Twitter API we can obtain an authentication token for only our application
+
+   a := &tweetlib.ApplicationOnly{
+      Client: &http.Client{},  // Or whatever client you wish to use
+      Config: config,
+   }
+   token, err := a.GetToken()
+
+Yes it's that easy. Now you have a token that you can use to make API calls
+
+Invalidating An Application Authentication Token
+
+We can invalidate a previously obtained application only token by passing it to the 
+InvalidateToken function
+
+   token := "AAAAAAAAAAAAAAAAAAAAAAA%2FAAAAAAAAAAAA"
+   a := &tweetlib.ApplicationOnly{
+      Client: &http.Client{},
+      Config: config,
+   }
+   a.InvalidateToken(token)
+ 
 Making API calls
 
-Making an API call is trivial once authentication is set up. It all starts
-with getting an API Client object:
+For making calls based off a users account, making an API call is trivial once 
+authentication is set up. It all starts with getting an API Client object:
 
-   tr := &tweetlib.Transport{
-	   Config: config,
-           Token: token
-   }
-   client, err := tweetlib.New(tr)
+   oauthClient := (&tweetlib.Transport{config, token, nil}).Client()
+   client, err := tweetlib.New(oauthClient)
    if err != nil {
 	   panic(err)
    }
+
+For making calls for applications only, we can use our previously obtained 
+authentication token and pass it to the application-only client constructor.
+Unlike utilizing user authenticated APIs, we do not need to use any custom
+instances of http.Client
+  
+   token, err := a.GetToken()
+   client, err := tweetlib.NewApplicationClient(&http.Client{}, token)
 
 Once you have the client, you can make API calls easily. For example,
 to post a tweet as the authenticating user
