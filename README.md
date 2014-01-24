@@ -1,6 +1,8 @@
 tweetlib
 ==========
 
+[![GoDoc](https://godoc.org/code.google.com/p/go.tools?status.png)](https://godoc.org/robteix/v2/tweetlib)
+
 A fully OAuth-authenticated library to interact with the new Twitter's
 [REST API](https://dev.twitter.com/docs/api/)
 
@@ -18,15 +20,6 @@ And then you can import it in your code like this:
             "robteix.com/v2/tweetlib"
             ...
         )
-
-General use
------------
-
-For help, just run
-
-    go doc robteix.com/v2/tweetlib
-
-or visit http://godoc.org/robteix.com/v2/tweetlib
 
 License
 -------
