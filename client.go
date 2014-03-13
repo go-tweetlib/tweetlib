@@ -25,7 +25,6 @@ const (
 	apiURL = "https://api.twitter.com/1.1"
 )
 
-
 // Checks whether the response is an error
 func checkResponse(res *http.Response) (err error) {
 	if res.StatusCode >= 200 && res.StatusCode <= 299 {
@@ -73,11 +72,11 @@ type Client struct {
 	// can be overwritten by an application that needs to use a different
 	// version of the library or maybe a mock.
 	Endpoint string
-    
-    // The token for twitter application we are using. If it is set to "" then
-    // client will assume that we are not making application-only API calls and
-    // are instead making calls using user authenticated APIs
-    ApplicationToken string
+
+	// The token for twitter application we are using. If it is set to "" then
+	// client will assume that we are not making application-only API calls and
+	// are instead making calls using user authenticated APIs
+	ApplicationToken string
 }
 
 // Creates a new twitter client for user authenticated API calls
@@ -85,21 +84,21 @@ func New(oauthClient *http.Client) (*Client, error) {
 	if oauthClient == nil {
 		return nil, errors.New("oauthClient is nil")
 	}
-    return constructClient(oauthClient, ""), nil
+	return constructClient(oauthClient, ""), nil
 }
 
 // Creates a new twitter client for application-only API calls
 func NewApplicationClient(httpClient *http.Client, bearerToken string) (*Client, error) {
-    if httpClient == nil {
-        return nil, errors.New("httpClient is nil")    
-    }
-    if bearerToken == "" {
-        return nil, errors.New("The Bearer Token must be a valid and non-empty")
-    }
-    return constructClient(httpClient, bearerToken), nil
+	if httpClient == nil {
+		return nil, errors.New("httpClient is nil")
+	}
+	if bearerToken == "" {
+		return nil, errors.New("The Bearer Token must be a valid and non-empty")
+	}
+	return constructClient(httpClient, bearerToken), nil
 }
 
-func constructClient(httpClient *http.Client, bearerToken string) *Client{
+func constructClient(httpClient *http.Client, bearerToken string) *Client {
 	c := &Client{client: httpClient}
 	c.Help = &HelpService{c}
 	c.DM = &DMService{c}
@@ -109,7 +108,7 @@ func constructClient(httpClient *http.Client, bearerToken string) *Client{
 	c.User = &UserService{c}
 	c.Lists = &ListService{c}
 	c.Endpoint = "https://api.twitter.com/1.1"
-    c.ApplicationToken = bearerToken
+	c.ApplicationToken = bearerToken
 	return c
 }
 
@@ -146,13 +145,14 @@ func (c *Client) CallJSON(method, endpoint string, opts *Optionals) (rawJSON []b
 	} else {
 		req, _ = http.NewRequest(method, endpoint, nil)
 	}
-    if c.ApplicationToken != "" {
-        req.Header.Add("Authorization", "Bearer " + c.ApplicationToken)    
-    }
+	if c.ApplicationToken != "" {
+		req.Header.Add("Authorization", "Bearer "+c.ApplicationToken)
+	}
 	res, err := c.client.Do(req)
 	if err != nil {
 		return
 	}
+	defer res.Body.Close()
 	if err = checkResponse(res); err != nil {
 		return
 	}

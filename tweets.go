@@ -210,6 +210,7 @@ func (tg *TweetsService) UpdateWithMedia(status string, media *TweetMedia, opts 
 	if err != nil {
 		return
 	}
+	defer res.Body.Close()
 	if err = checkResponse(res); err != nil {
 		return
 	}
