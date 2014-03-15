@@ -11,7 +11,7 @@ import (
 	"crypto/hmac"
 	"crypto/sha1"
 	"encoding/base64"
-    "encoding/json"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -28,12 +28,12 @@ const (
 	tokenRequestURL = "https://api.twitter.com/oauth/request_token" // request token endpoint
 	authURL         = "https://api.twitter.com/oauth/authorize"     // user authorization endpoint
 	accessTokenURL  = "https://api.twitter.com/oauth/access_token"  // access token endpoint
-    oauth2URL       = "https://api.twitter.com/oauth2"             // oauth2 endpoint for applications
+	oauth2URL       = "https://api.twitter.com/oauth2"              // oauth2 endpoint for applications
 )
 
 type ApplicationTokenResponse struct {
-    Token_type   string
-    Access_token string    
+	Token_type   string
+	Access_token string
 }
 
 type Config struct {
@@ -69,61 +69,61 @@ func (c *Config) callback() string {
 }
 
 type ApplicationOnly struct {
-    *http.Client
-    *Config
+	*http.Client
+	*Config
 }
 
 func (a *ApplicationOnly) makeRequest(urlSuffix, content string) *http.Request {
-    req, _ := http.NewRequest("POST", oauth2URL + urlSuffix, strings.NewReader(content))
-    req.SetBasicAuth(a.Config.ConsumerKey, a.Config.ConsumerSecret)
-    return req
+	req, _ := http.NewRequest("POST", oauth2URL+urlSuffix, strings.NewReader(content))
+	req.SetBasicAuth(a.Config.ConsumerKey, a.Config.ConsumerSecret)
+	return req
 }
 
 func (a *ApplicationOnly) getResponse(req *http.Request) ([]byte, error) {
-    resp, err := a.Client.Do(req)
-    if err != nil {
-        return nil, err    
-    } 
-    defer resp.Body.Close()
-    err = checkResponse(resp)
-    if err != nil {
-        return nil, err
-    }
-    body, err := ioutil.ReadAll(resp.Body)
-    if err != nil {
-        return nil, err    
-    } 
-    return body, nil
+	resp, err := a.Client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	err = checkResponse(resp)
+	if err != nil {
+		return nil, err
+	}
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+	return body, nil
 }
 
 // Gets a token for only the application desiring to make API calls. The full step breakdown
 // can be found at https://dev.twitter.com/docs/auth/application-only-auth.
 func (a *ApplicationOnly) GetToken() (string, error) {
-    req := a.makeRequest("/token", "grant_type=client_credentials")
-    req.Header.Add("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8")
-    body, err := a.getResponse(req)
-    if err != nil {
-        return "", err    
-    } 
-    var tokenResponse ApplicationTokenResponse
-    err = json.Unmarshal(body, &tokenResponse)
-    if err != nil {
-        return "", err    
-    } 
-    if tokenResponse.Token_type != "bearer" {
-        return "", NoBearerTokenError()
-    }
-    return tokenResponse.Access_token, nil
+	req := a.makeRequest("/token", "grant_type=client_credentials")
+	req.Header.Add("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8")
+	body, err := a.getResponse(req)
+	if err != nil {
+		return "", err
+	}
+	var tokenResponse ApplicationTokenResponse
+	err = json.Unmarshal(body, &tokenResponse)
+	if err != nil {
+		return "", err
+	}
+	if tokenResponse.Token_type != "bearer" {
+		return "", NoBearerTokenError()
+	}
+	return tokenResponse.Access_token, nil
 }
 
 // Invalidate a previously obtained authentication token
 func (a *ApplicationOnly) InvalidateToken(token string) error {
-    req := a.makeRequest("/invalidate_token", "access_token="+token)
-    _, err := a.getResponse(req)
-    if err != nil {
-        return err    
-    }
-    return nil
+	req := a.makeRequest("/invalidate_token", "access_token="+token)
+	_, err := a.getResponse(req)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 type Transport struct {
@@ -266,8 +266,6 @@ func (t *Transport) AccessToken(tempToken *TempToken, oauthVerifier string) (*To
 	t.OAuthSecret = data.Get("oauth_token_secret")
 	return &Token{OAuthToken: t.OAuthToken, OAuthSecret: t.OAuthSecret}, nil
 }
-
-
 
 func (t *Transport) TempToken() (*TempToken, error) {
 	var body io.Reader

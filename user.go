@@ -79,4 +79,3 @@ func (us *UserService) Show(screenName string, opts *Optionals) (user *User, err
 	err = us.Call("GET", "users/show", opts, user)
 	return
 }
-

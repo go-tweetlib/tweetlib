@@ -119,7 +119,7 @@ Yes it's that easy. Now you have a token that you can use to make API calls
 
 Invalidating An Application Authentication Token
 
-We can invalidate a previously obtained application only token by passing it to the 
+We can invalidate a previously obtained application only token by passing it to the
 InvalidateToken function
 
    token := "AAAAAAAAAAAAAAAAAAAAAAA%2FAAAAAAAAAAAA"
@@ -128,10 +128,10 @@ InvalidateToken function
       Config: config,
    }
    a.InvalidateToken(token)
- 
+
 Making API calls
 
-For making calls based off a users account, making an API call is trivial once 
+For making calls based off a users account, making an API call is trivial once
 authentication is set up. It all starts with getting an API Client object:
 
    oauthClient := (&tweetlib.Transport{config, token, nil}).Client()
@@ -140,11 +140,11 @@ authentication is set up. It all starts with getting an API Client object:
 	   panic(err)
    }
 
-For making calls for applications only, we can use our previously obtained 
+For making calls for applications only, we can use our previously obtained
 authentication token and pass it to the application-only client constructor.
 Unlike utilizing user authenticated APIs, we do not need to use any custom
 instances of http.Client
-  
+
    token, err := a.GetToken()
    client, err := tweetlib.NewApplicationClient(&http.Client{}, token)
 
