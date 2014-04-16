@@ -11,13 +11,13 @@ Installing
 
 Best way to isntall this package is by running goinstall:
 
-    go get robteix.com/v2/tweetlib
+    go get gopkg.in/tweetlib.v2
 
 And then you can import it in your code like this:
 
     import (
             ...
-            "robteix.com/v2/tweetlib"
+            tweetlib "gopkg.in/tweetlib.v2"
             ...
         )
 
