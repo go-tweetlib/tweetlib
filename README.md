@@ -1,7 +1,7 @@
 tweetlib
 ==========
 
-[![GoDoc](https://godoc.org/code.google.com/p/go.tools?status.png)](https://godoc.org/robteix/v2/tweetlib)
+[![GoDoc](https://godoc.org/code.google.com/p/go.tools?status.png)](http://godoc.org/gopkg.in/tweetlib.v2)
 
 A fully OAuth-authenticated library to interact with the new Twitter's
 [REST API](https://dev.twitter.com/docs/api/)
@@ -17,7 +17,7 @@ And then you can import it in your code like this:
 
     import (
             ...
-            tweetlib "gopkg.in/tweetlib.v2"
+            "gopkg.in/tweetlib.v2"
             ...
         )
 
