@@ -12,7 +12,7 @@ See https:dev.twitter.com/docs/api/
 
 Usage example:
 
-  import "robteix.com/v2/tweetlib"
+  import "gopkg.in/tweetlib.v2"
 
   config := &tweetlib.Config{
   	ConsumerKey: "your-consumer-key",
