@@ -17,7 +17,7 @@ type Cursor struct {
 	NextStr     string  `json:"next_cursor_str"`
 	Previous    int64   `json:"previous_cursor"`
 	PreviousStr string  `json:"previous_cursor_str"`
-	Ids         []int64 `json:"ids"`
+	IDs         []int64 `json:"ids"`
 }
 
 // IDs returns a cursored collection of user IDs.
