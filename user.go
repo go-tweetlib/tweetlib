@@ -6,6 +6,12 @@
 
 package tweetlib
 
+import (
+	"errors"
+	"strconv"
+	"strings"
+)
+
 type UserService struct {
 	*Client
 }
@@ -77,5 +83,32 @@ func (us *UserService) Show(screenName string, opts *Optionals) (user *User, err
 	opts.Add("screen_name", screenName)
 	user = &User{}
 	err = us.Call("GET", "users/show", opts, user)
+	return
+}
+
+// See https://dev.twitter.com/docs/api/1.1/get/users/lookup
+func (us *UserService) Lookup(screenNames []string, userIDs []int64, opts *Optionals) (users *UserList, err error) {
+	if opts == nil {
+		opts = NewOptionals()
+	}
+
+	var n int
+	switch {
+	case screenNames != nil && len(screenNames) <= 100:
+		opts.Add("screen_name", strings.Join(screenNames, ","))
+		n = len(screenNames)
+	case userIDs != nil && len(userIDs) <= 100:
+		n = len(userIDs)
+		ids := make([]string, n)
+		for k, v := range userIDs {
+			ids[k] = strconv.FormatInt(v, 10)
+		}
+		opts.Add("user_id", strings.Join(ids, ","))
+	default:
+		return nil, errors.New("Invalid request.")
+	}
+
+	users = &UserList{}
+	err = us.Call("GET", "users/lookup", opts, users)
 	return
 }
