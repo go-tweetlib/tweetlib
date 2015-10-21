@@ -111,6 +111,6 @@ func (us *UserService) Lookup(screenNames []string, userIDs []int64, opts *Optio
 	}
 
 	users = &UserList{}
-	err = us.Call("GET", "users/lookup", opts, users)
+	err = us.Call("POST", "users/lookup", opts, users)
 	return
 }
