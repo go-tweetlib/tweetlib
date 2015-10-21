@@ -80,7 +80,9 @@ func (us *UserService) Show(screenName string, opts *Optionals) (user *User, err
 	if opts == nil {
 		opts = NewOptionals()
 	}
-	opts.Add("screen_name", screenName)
+	if screenName != "" {
+		opts.Add("screen_name", screenName)
+	}
 	user = &User{}
 	err = us.Call("GET", "users/show", opts, user)
 	return
