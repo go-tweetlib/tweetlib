@@ -68,6 +68,12 @@ type Client struct {
 	// List services
 	Lists *ListService
 
+	// Friend services
+	Friends *FriendsService
+
+	// Followers services
+	Followers *FollowersService
+
 	// API base endpoint. This is the base endpoing URL for API calls. This
 	// can be overwritten by an application that needs to use a different
 	// version of the library or maybe a mock.
@@ -107,6 +113,8 @@ func constructClient(httpClient *http.Client, bearerToken string) *Client {
 	c.Search = &SearchService{c}
 	c.User = &UserService{c}
 	c.Lists = &ListService{c}
+	c.Friends = &FriendsService{c}
+	c.Followers = &FollowersService{c}
 	c.Endpoint = "https://api.twitter.com/1.1"
 	c.ApplicationToken = bearerToken
 	return c
